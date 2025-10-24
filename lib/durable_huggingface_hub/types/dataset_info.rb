@@ -96,6 +96,24 @@ module DurableHuggingfaceHub
        #   @return [Integer, nil] Trending score
        attribute :trending_score, Types::OptionalInteger.default(nil)
 
+       # Transform API response to filter out unknown keys
+       def self.from_hash(data)
+         transformed = data.dup
+
+         # Filter out unknown keys to avoid dry-struct errors
+         known_keys = [:id, :sha, :last_modified, :tags, :siblings, :private, :gated,
+                       :disabled, :downloads, :likes, :author, :created_at, :card_data,
+                       :description, :citation, :downloads_all_time, :paperswithcode_id,
+                       :trending_score,
+                       "id", "sha", "last_modified", "tags", "siblings", "private", "gated",
+                       "disabled", "downloads", "likes", "author", "created_at", "card_data",
+                       "description", "citation", "downloads_all_time", "paperswithcode_id",
+                       "trending_score"]
+         transformed = transformed.select { |k, _| known_keys.include?(k) }
+
+         new(transformed)
+       end
+
        # Returns the list of file names in the repository.
       #
       # @return [Array<String>] File names
