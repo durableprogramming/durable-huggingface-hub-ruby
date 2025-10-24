@@ -54,15 +54,8 @@ module DurableHuggingfaceHub
        # Update configuration
        Configuration.instance.token = token
 
-        # Return masked token and user info
-        masked = Utils::Auth.mask_token(token)
-        username = user_info.name || "unknown"
-
-       puts "Login successful!"
-       puts "Token: #{masked}"
-       puts "User: #{username}"
-
-       masked
+      # Return user info for CLI
+       { name: user_info.name, type: user_info.type || "user" }
      end
 
      # Logs out of HuggingFace Hub by removing the stored token.
@@ -106,7 +99,7 @@ module DurableHuggingfaceHub
        token = Utils::Auth.get_token!(token: token)
 
        client = Utils::HttpClient.new(token: token)
-       response = client.get("/api/whoami")
+       response = client.get("/api/whoami-v2")
 
        Types::User.from_hash(response.body)
      end

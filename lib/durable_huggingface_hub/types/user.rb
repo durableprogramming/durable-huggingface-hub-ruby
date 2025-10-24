@@ -25,6 +25,10 @@ module DurableHuggingfaceHub
       #   @return [String, nil] User type (e.g., "user")
       attribute :type, Types::OptionalString.default(nil)
 
+      # @!attribute [r] id
+      #   @return [String, nil] User ID
+      attribute :id, Types::OptionalString.default(nil)
+
       # @!attribute [r] name
       #   @return [String] Username
       attribute :name, Types::String
@@ -48,6 +52,10 @@ module DurableHuggingfaceHub
       # @!attribute [r] orgs
       #   @return [Array<Hash>, nil] Organizations the user belongs to
       attribute :orgs, Types::Array.of(Types::Hash).optional.default(nil)
+
+      # @!attribute [r] auth
+      #   @return [Hash, nil] Authentication information including token details
+      attribute :auth, Types::Hash.optional.default(nil)
 
       # Transform isPro from API to is_pro
       def self.from_hash(data)
