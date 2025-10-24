@@ -1,0 +1,108 @@
+require:
+  - rubocop-minitest
+  - rubocop-rake
+
+AllCops:
+  TargetRubyVersion: 3.0
+  NewCops: enable
+  Exclude:
+    - 'vendor/**/*'
+    - 'tmp/**/*'
+    - 'reference/**/*'
+    - 'philosophy/**/*'
+    - 'durableprogramming-coding-standards/**/*'
+
+# Style preferences
+Style/StringLiterals:
+  Enabled: true
+  EnforcedStyle: double_quotes
+
+Style/StringLiteralsInInterpolation:
+  Enabled: true
+  EnforcedStyle: double_quotes
+
+Style/FrozenStringLiteralComment:
+  Enabled: true
+  EnforcedStyle: always
+
+Style/Documentation:
+  Enabled: false  # We use YARD instead
+
+Style/ClassAndModuleChildren:
+  Enabled: false  # Allow nested module definitions
+
+Style/GuardClause:
+  Enabled: true
+  MinBodyLength: 3
+
+# Layout preferences
+Layout/LineLength:
+  Max: 120
+  Exclude:
+    - 'test/**/*'
+
+Layout/MultilineMethodCallIndentation:
+  EnforcedStyle: indented
+
+Layout/FirstArrayElementIndentation:
+  EnforcedStyle: consistent
+
+Layout/FirstHashElementIndentation:
+  EnforcedStyle: consistent
+
+# Metrics
+Metrics/BlockLength:
+  Exclude:
+    - 'test/**/*'
+    - 'Rakefile'
+    - '*.gemspec'
+
+Metrics/MethodLength:
+  Max: 20
+  Exclude:
+    - 'test/**/*'
+
+Metrics/ClassLength:
+  Max: 200
+  Exclude:
+    - 'test/**/*'
+
+Metrics/ModuleLength:
+  Max: 200
+  Exclude:
+    - 'test/**/*'
+
+Metrics/AbcSize:
+  Max: 20
+  Exclude:
+    - 'test/**/*'
+
+# Naming
+Naming/FileName:
+  Exclude:
+    - 'Gemfile'
+    - 'Rakefile'
+
+Naming/MethodParameterName:
+  MinNameLength: 1  # Allow single letter params like 'a', 'b' for math
+
+# Lint
+Lint/UnusedMethodArgument:
+  AllowUnusedKeywordArguments: true
+
+Lint/MissingSuper:
+  Enabled: false  # Sometimes we intentionally don't call super
+
+# Minitest specific
+Minitest/MultipleAssertions:
+  Max: 10
+
+Minitest/AssertEmptyLiteral:
+  Enabled: true
+
+# Performance
+Performance/StringReplacement:
+  Enabled: true
+
+Performance/Caller:
+  Enabled: true
