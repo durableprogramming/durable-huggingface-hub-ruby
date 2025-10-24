@@ -64,6 +64,11 @@ module DurableHuggingfaceHub
           transformed[:avatar_url] = transformed.delete(:avatarUrl)
         end
 
+        # Filter out unknown keys to avoid dry-struct errors
+        known_keys = [:type, :name, :fullname, :email, :avatar_url, :is_pro, :orgs,
+                      "type", "name", "fullname", "email", "avatar_url", "is_pro", "orgs"]
+        transformed = transformed.select { |k, _| known_keys.include?(k) }
+
         new(transformed)
       end
 

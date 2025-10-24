@@ -629,12 +629,24 @@ module DurableHuggingfaceHub
       DurableHuggingfaceHub::Utils::Validators.validate_repo_id(repo_id)
       repo_type = DurableHuggingfaceHub::Utils::Validators.validate_repo_type(repo_type)
 
-      path = "/api/#{repo_type}s"
+      # Extract organization from repo_id if not provided
+      repo_parts = repo_id.split("/")
+      if organization.nil? && repo_parts.length == 2
+        # Get current username to check if it's a personal repo
+        current_user = whoami
+        potential_org = repo_parts[0]
+        # Only set organization if it's not the current user
+        organization = potential_org unless potential_org == current_user.name
+      end
+      repo_name = repo_parts.last
+
+      path = "/api/repos/create"
       payload = {
-        name: repo_id.split("/").last,
-        private: private,
-        organization: organization
+        name: repo_name,
+        private: private
       }
+      payload[:type] = repo_type if repo_type != "model"
+      payload[:organization] = organization if organization
 
       response = http_client.post(path, body: payload, timeout: timeout)
       body = response.body.is_a?(String) ? JSON.parse(response.body) : response.body
