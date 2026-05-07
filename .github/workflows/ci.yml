@@ -4,7 +4,6 @@ on:
   push:
     branches: [ master, main ]
   pull_request:
-    branches: [ master, main ]
 
 jobs:
   test:
@@ -26,6 +25,10 @@ jobs:
 
     - name: Run tests
       run: bundle exec rake test
+
+    - name: Run tests with coverage
+      if: matrix.ruby == '3.3' && matrix.os == 'ubuntu-latest'
+      run: bundle exec rake test:coverage
 
     - name: Upload coverage reports
       if: matrix.ruby == '3.3' && matrix.os == 'ubuntu-latest'
