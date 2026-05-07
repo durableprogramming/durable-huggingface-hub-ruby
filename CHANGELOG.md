@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+- `hf_hub_download` now follows 3xx redirects issued by HuggingFace Hub
+  resolve URLs by adding the `faraday-follow_redirects` middleware
+  (`Utils::HttpClient#build_connection`).
+- Streaming downloads no longer produce files prefixed with a redirect body.
+  The temp file is now opened once with `"wb"` (truncate) instead of being
+  appended to per-chunk with `"ab"`, which also reduces filesystem overhead.
+
 ## [0.2.0] - 2025-01-24
 
 ### Added
