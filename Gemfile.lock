@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    durable_huggingface_hub (0.2.0)
+    durable_huggingface_hub (0.2.1)
       dry-struct (~> 1.6)
       dry-types (~> 1.7)
       faraday (~> 2.0)
@@ -144,4 +144,4 @@ DEPENDENCIES
   yard (~> 0.9)
 
 BUNDLED WITH
-   2.7.2
+  2.7.2
