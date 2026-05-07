@@ -1,6 +1,6 @@
 # HuggingFace Hub Ruby
 
-A pure Ruby implementation of the HuggingFace Hub client library. This library provides a complete, production-ready interface to HuggingFace Hub for downloading models, datasets, and managing repositories - with zero Python dependencies.
+A pure Ruby implementation of the HuggingFace Hub client library. This library provides a interface to HuggingFace Hub for downloading models, datasets, and managing repositories - with zero Python dependencies.
 
 ## Features
 
