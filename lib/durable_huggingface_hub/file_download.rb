@@ -463,8 +463,11 @@ module DurableHuggingfaceHub
          end
        end
 
+      # Use the redirect-resolved URL so the streaming GET never sees a 3xx.
+      download_url = metadata[:resolved_url] || url_path
+
       # Download the file to blob storage
-      download_to_blob(client, url_path, blob_path, metadata, progress)
+      download_to_blob(client, download_url, blob_path, metadata, progress)
 
       # Create snapshot symlink
       ensure_snapshot_link(blob_path, snapshot_path)
@@ -483,12 +486,16 @@ module DurableHuggingfaceHub
     def self.get_file_metadata(client, url_path)
       response = client.head(url_path)
 
-      # Extract metadata from headers (response is now a Faraday::Response object)
       headers = response.headers
+      # After following redirects, env[:url] holds the final resolved URL.
+      # We store it so the subsequent streaming GET can target it directly,
+      # bypassing the redirect entirely (on_data fires below middleware).
+      resolved_url = response.env[:url].to_s
       {
         etag: extract_etag(headers["etag"] || headers["x-linked-etag"]),
         size: headers["x-linked-size"]&.to_i,
-        commit_hash: headers["x-repo-commit"]
+        commit_hash: headers["x-repo-commit"],
+        resolved_url: resolved_url
       }
     end
 
@@ -543,11 +550,12 @@ module DurableHuggingfaceHub
       end
 
       begin
-        # Download file
-        response = client.request(:get, url_path) do |req|
-          req.options.on_data = proc do |chunk, _overall_received_bytes, _env|
-            File.open(temp_path, "ab") { |f| f.write(chunk) }
-            progress_tracker.update(chunk.bytesize)
+        File.open(temp_path, "wb") do |f|
+          client.request(:get, url_path) do |req|
+            req.options.on_data = proc do |chunk, _overall_received_bytes, _env|
+              f.write(chunk)
+              progress_tracker.update(chunk.bytesize)
+            end
           end
         end
 

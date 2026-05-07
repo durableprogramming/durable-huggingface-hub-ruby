@@ -2,6 +2,7 @@
 
 require "json"
 require "faraday"
+require "faraday/follow_redirects"
 require "faraday/retry"
 
 require_relative "../configuration"
@@ -172,6 +173,9 @@ module DurableHuggingfaceHub
           if @logger
             conn.response :logger, @logger, { headers: true, bodies: false }
           end
+
+          # Follow 3xx redirects (HuggingFace Hub issues 307s for file resolve URLs)
+          conn.response :follow_redirects, limit: 5
 
           # Retry middleware with exponential backoff
           conn.request :retry,
