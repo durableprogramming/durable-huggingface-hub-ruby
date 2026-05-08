@@ -225,7 +225,7 @@ module DurableHuggingfaceHub
     #
     # @param filter [String, Hash, nil] Filter criteria:
     #   - String: Search query or single tag
-    #   - Hash: Structured filters (e.g., {author: "google", task: "text-classification"})
+    #   - Hash: Structured filters (e.g., <tt>{author: "google", task: "text-classification"}</tt>)
     # @param author [String, nil] Filter by author/organization
     # @param search [String, nil] Search query for model names and descriptions
     # @param sort [String, Symbol, nil] Sort criterion:

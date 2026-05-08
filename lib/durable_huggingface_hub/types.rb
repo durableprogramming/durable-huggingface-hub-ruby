@@ -14,7 +14,9 @@ module DurableHuggingfaceHub
   #   Types::RepoType["model"]
   #   Types::Revision["main"]
   module Types
-    include Dry.Types()
+    # Dry-types module instance used to populate this namespace with type primitives.
+    DryTypes = Dry.Types()
+    include DryTypes
 
     # Repository ID type with validation.
     #
@@ -162,14 +164,13 @@ module DurableHuggingfaceHub
     #
     # Provides convenient methods for creating instances from API responses.
     module Loadable
-      # Creates an instance from a hash (typically from JSON parsing).
-      #
-      # @param data [Hash] Data hash
-      # @return [Struct] New instance
+      # @param base [Module] The class including this module
+      # @return [void]
       def self.included(base)
         base.extend(ClassMethods)
       end
 
+      # Class-level methods mixed into structs that include {Loadable}.
       module ClassMethods
         # Creates an instance from a hash.
         #
@@ -179,11 +180,13 @@ module DurableHuggingfaceHub
           new(data)
         end
 
-        # Alias for from_hash.
+        # Creates an instance from a hash (alias for {from_hash}).
         #
-        # @param data [Hash] Data hash
-        # @return [self] New instance
-        alias from_json from_hash
+        # @param data [Hash] Data hash with string or symbol keys
+        # @return [self] New instance of the struct
+        def from_json(data)
+          from_hash(data)
+        end
       end
 
       # Converts the struct to a hash.

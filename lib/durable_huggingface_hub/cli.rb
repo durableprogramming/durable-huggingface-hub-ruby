@@ -12,6 +12,9 @@ module DurableHuggingfaceHub
       @options = {}
     end
 
+    # Parses arguments and executes the requested command.
+    #
+    # @return [void]
     def run
       parse_args
       execute_command

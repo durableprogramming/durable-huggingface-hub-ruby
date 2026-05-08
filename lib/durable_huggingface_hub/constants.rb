@@ -50,12 +50,16 @@ module DurableHuggingfaceHub
 
      # File naming conventions for PyTorch models
      PYTORCH_WEIGHTS_NAME = "pytorch_model.bin"
+     # Index file for sharded PyTorch weights
      PYTORCH_WEIGHTS_INDEX_NAME = "pytorch_model.bin.index.json"
+     # Glob pattern for sharded PyTorch weight files
      PYTORCH_WEIGHTS_FILE_PATTERN = "pytorch_model{suffix}.bin"
 
      # TensorFlow model file names
      TF2_WEIGHTS_NAME = "tf_model.h5"
+     # TensorFlow 1.x checkpoint file name
      TF_WEIGHTS_NAME = "model.ckpt"
+     # Glob pattern for sharded TF2 weight files
      TF2_WEIGHTS_FILE_PATTERN = "tf_model{suffix}.h5"
 
      # Flax model file names
@@ -63,13 +67,18 @@ module DurableHuggingfaceHub
 
      # SafeTensors file patterns (preferred format for model weights)
      SAFETENSORS_WEIGHTS_FILE_PATTERN = "model*.safetensors"
+     # Pattern for sharded SafeTensors files with a suffix placeholder
      SAFETENSORS_WEIGHTS_FILE_PATTERN_SUFFIX = "model{suffix}.safetensors"
+     # Single-shard SafeTensors file name
      SAFETENSORS_SINGLE_FILE = "model.safetensors"
+     # SafeTensors index file for sharded models
      SAFETENSORS_INDEX_FILE = "model.safetensors.index.json"
+     # Maximum allowed SafeTensors header size in bytes
      SAFETENSORS_MAX_HEADER_LENGTH = 25_000_000
 
      # Configuration and metadata file names
      CONFIG_NAME = "config.json"
+     # Repository card / model card file name
      REPOCARD_NAME = "README.md"
 
     # Timeout configuration (in seconds)
@@ -99,7 +108,9 @@ module DurableHuggingfaceHub
 
      # Repository type constants
      REPO_TYPE_MODEL = "model"
+     # Repository type identifier for datasets
      REPO_TYPE_DATASET = "dataset"
+     # Repository type identifier for Spaces
      REPO_TYPE_SPACE = "space"
 
      # Valid repository types (including nil for backward compatibility)
@@ -126,17 +137,26 @@ module DurableHuggingfaceHub
 
     # Cache directory structure
     HF_CACHE_SUBDIR = "hub"
+    # Subdirectory name for cached model files
     MODELS_CACHE_SUBDIR = "models"
 
      # HTTP header names
      HEADER_X_REPO_COMMIT = "X-Repo-Commit"
+     # HTTP header carrying the size of the linked (LFS) file
      HEADER_X_LINKED_SIZE = "X-Linked-Size"
+     # HTTP header carrying the ETag of the linked (LFS) file
      HEADER_X_LINKED_ETAG = "X-Linked-Etag"
+     # HTTP header used to specify the billing account
      HEADER_X_BILL_TO = "X-HF-Bill-To"
+     # HTTP header for the Xet CAS endpoint URL
      HEADER_X_XET_ENDPOINT = "X-Xet-Cas-Url"
+     # HTTP header carrying the Xet access token
      HEADER_X_XET_ACCESS_TOKEN = "X-Xet-Access-Token"
+     # HTTP header indicating when the Xet token expires
      HEADER_X_XET_EXPIRATION = "X-Xet-Token-Expiration"
+     # HTTP header carrying the Xet content hash
      HEADER_X_XET_HASH = "X-Xet-Hash"
+     # HTTP header with the route to refresh a Xet token
      HEADER_X_XET_REFRESH_ROUTE = "X-Xet-Refresh-Route"
 
     # User agent string for API requests

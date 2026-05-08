@@ -163,7 +163,7 @@ module DurableHuggingfaceHub
       # Joins path components safely, ensuring no path traversal.
       #
       # @param base [String, Pathname] Base path
-      # @param *parts [String] Path components to join
+      # @param parts [Array<String>] Path components to join
       # @return [Pathname] Joined path
       # @raise [ValidationError] If result would escape base path
       #

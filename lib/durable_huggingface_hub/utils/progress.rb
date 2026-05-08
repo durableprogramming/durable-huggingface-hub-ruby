@@ -185,30 +185,41 @@ module DurableHuggingfaceHub
 
      # No-op progress tracker for when progress tracking is disabled.
      class NullProgress
+       # @param _amount [Integer] Ignored
+       # @return [void]
        def update(_amount); end
 
+       # @param _value [Integer] Ignored
+       # @return [void]
        def set(_value); end
 
+       # @return [void]
        def finish; end
 
+       # @return [Boolean] Always false
        def finished?
          false
        end
 
+       # @return [nil] Always nil
        def percentage
          nil
        end
 
+       # @return [Integer] Always 0
        def elapsed
          0
        end
 
+       # @return [nil] Always nil
        def eta
          nil
        end
 
+       # @return [void]
        def reset; end
 
+       # @return [String] Fixed string "NullProgress"
        def to_s
          "NullProgress"
        end

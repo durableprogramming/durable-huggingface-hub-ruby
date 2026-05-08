@@ -6,6 +6,7 @@ require_relative "types"
 require_relative "file_download"
 
 module DurableHuggingfaceHub
+  # Utilities for inspecting and managing the local HuggingFace Hub cache.
   module Cache
     # Scans the cache directory and returns comprehensive information about cached content.
     #
