@@ -126,6 +126,8 @@ GEM
     zeitwerk (2.7.5)
 
 PLATFORMS
+  aarch64-linux
+  arm64-darwin
   ruby
   x86_64-linux
 
@@ -144,4 +146,4 @@ DEPENDENCIES
   yard (~> 0.9)
 
 BUNDLED WITH
-  2.7.2
+   2.7.2

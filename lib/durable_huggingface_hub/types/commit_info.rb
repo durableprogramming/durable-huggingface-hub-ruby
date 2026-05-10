@@ -104,8 +104,6 @@ module DurableHuggingfaceHub
       #   @return [String, nil] Target commit OID
       attribute :target_commit, Types::OptionalString.default(nil)
 
-
-
       # Checks if this is a branch reference.
       #
       # @return [Boolean] True if branch

@@ -54,7 +54,7 @@ module DurableHuggingfaceHub
       @disable_progress_bars = parse_boolean(env_var("HF_HUB_DISABLE_PROGRESS_BARS"), default: false)
       @disable_telemetry = parse_boolean(env_var("HF_HUB_DISABLE_TELEMETRY"), default: true)
       @request_timeout = parse_integer(env_var("HF_HUB_REQUEST_TIMEOUT"),
-default: Constants::DEFAULT_REQUEST_TIMEOUT)
+                                       default: Constants::DEFAULT_REQUEST_TIMEOUT)
       @download_timeout = parse_integer(env_var("HF_HUB_DOWNLOAD_TIMEOUT"),
                                         default: Constants::DEFAULT_DOWNLOAD_TIMEOUT)
     end
@@ -99,7 +99,7 @@ default: Constants::DEFAULT_REQUEST_TIMEOUT)
     # @param key [String] The environment variable name
     # @return [String, nil] The environment variable value or nil if not set
     def env_var(key)
-      value = ENV[key]
+      value = ENV.fetch(key, nil)
       value&.empty? ? nil : value
     end
 

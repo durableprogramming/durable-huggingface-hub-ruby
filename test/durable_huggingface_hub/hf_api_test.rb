@@ -18,16 +18,19 @@ module DurableHuggingfaceHub
 
     def test_initializes_with_token
       api = HfApi.new(token: "hf_custom_token")
+
       assert_equal "hf_custom_token", api.token
     end
 
     def test_initializes_with_default_endpoint
       api = HfApi.new(token: "hf_test")
+
       assert_equal Constants::ENDPOINT, api.endpoint
     end
 
     def test_initializes_with_custom_endpoint
       api = HfApi.new(token: "hf_test", endpoint: "https://custom.example.com")
+
       assert_equal "https://custom.example.com", api.endpoint
     end
 
@@ -40,18 +43,21 @@ module DurableHuggingfaceHub
     def test_model_info_returns_model_info_object
       stub_hf_get("/api/models/bert-base-uncased", body: model_info_hash)
       info = @api.model_info("bert-base-uncased")
+
       assert_instance_of Types::ModelInfo, info
     end
 
     def test_model_info_returns_correct_id
       stub_hf_get("/api/models/bert-base-uncased", body: model_info_hash)
       info = @api.model_info("bert-base-uncased")
+
       assert_equal "bert-base-uncased", info.id
     end
 
     def test_model_info_returns_downloads
       stub_hf_get("/api/models/bert-base-uncased", body: model_info_hash)
       info = @api.model_info("bert-base-uncased")
+
       assert_equal 1_000_000, info.downloads
     end
 
@@ -60,6 +66,7 @@ module DurableHuggingfaceHub
         .with(query: hash_including("revision" => "v1.0"))
         .to_return(status: 200, body: model_info_hash.to_json, headers: { "Content-Type" => "application/json" })
       info = @api.model_info("bert-base-uncased", revision: "v1.0")
+
       assert_equal "bert-base-uncased", info.id
     end
 
@@ -77,12 +84,14 @@ module DurableHuggingfaceHub
     def test_dataset_info_returns_dataset_info_object
       stub_hf_get("/api/datasets/squad", body: dataset_info_hash)
       info = @api.dataset_info("squad")
+
       assert_instance_of Types::DatasetInfo, info
     end
 
     def test_dataset_info_returns_correct_id
       stub_hf_get("/api/datasets/squad", body: dataset_info_hash)
       info = @api.dataset_info("squad")
+
       assert_equal "squad", info.id
     end
 
@@ -96,12 +105,14 @@ module DurableHuggingfaceHub
     def test_space_info_returns_space_info_object
       stub_hf_get("/api/spaces/stabilityai/stable-diffusion", body: space_info_hash)
       info = @api.space_info("stabilityai/stable-diffusion")
+
       assert_instance_of Types::SpaceInfo, info
     end
 
     def test_space_info_returns_correct_id
       stub_hf_get("/api/spaces/stabilityai/stable-diffusion", body: space_info_hash)
       info = @api.space_info("stabilityai/stable-diffusion")
+
       assert_equal "stabilityai/stable-diffusion", info.id
     end
 
@@ -110,18 +121,21 @@ module DurableHuggingfaceHub
     def test_repo_info_model_type
       stub_hf_get("/api/models/bert-base-uncased", body: model_info_hash)
       info = @api.repo_info("bert-base-uncased", repo_type: "model")
+
       assert_instance_of Types::ModelInfo, info
     end
 
     def test_repo_info_dataset_type
       stub_hf_get("/api/datasets/squad", body: dataset_info_hash)
       info = @api.repo_info("squad", repo_type: "dataset")
+
       assert_instance_of Types::DatasetInfo, info
     end
 
     def test_repo_info_space_type
       stub_hf_get("/api/spaces/stabilityai/stable-diffusion", body: space_info_hash)
       info = @api.repo_info("stabilityai/stable-diffusion", repo_type: "space")
+
       assert_instance_of Types::SpaceInfo, info
     end
 
@@ -138,12 +152,14 @@ module DurableHuggingfaceHub
     def test_list_models_returns_array
       stub_hf_get("/api/models", body: [model_info_hash])
       models = @api.list_models
+
       assert_instance_of Array, models
     end
 
     def test_list_models_returns_model_info_objects
       stub_hf_get("/api/models", body: [model_info_hash])
       models = @api.list_models
+
       assert_instance_of Types::ModelInfo, models.first
     end
 
@@ -152,6 +168,7 @@ module DurableHuggingfaceHub
         .with(query: hash_including("search" => "bert"))
         .to_return(status: 200, body: [model_info_hash].to_json, headers: { "Content-Type" => "application/json" })
       models = @api.list_models(search: "bert")
+
       assert_equal 1, models.size
     end
 
@@ -160,6 +177,7 @@ module DurableHuggingfaceHub
         .with(query: hash_including("author" => "google"))
         .to_return(status: 200, body: [model_info_hash].to_json, headers: { "Content-Type" => "application/json" })
       models = @api.list_models(author: "google")
+
       assert_equal 1, models.size
     end
 
@@ -168,6 +186,7 @@ module DurableHuggingfaceHub
         .with(query: hash_including("limit" => "5"))
         .to_return(status: 200, body: [model_info_hash].to_json, headers: { "Content-Type" => "application/json" })
       models = @api.list_models(limit: 5)
+
       assert_equal 1, models.size
     end
 
@@ -176,13 +195,15 @@ module DurableHuggingfaceHub
         .with(query: hash_including("filter" => "text-classification"))
         .to_return(status: 200, body: [model_info_hash].to_json, headers: { "Content-Type" => "application/json" })
       models = @api.list_models(filter: "text-classification")
+
       assert_equal 1, models.size
     end
 
     def test_list_models_returns_empty_array_on_no_results
       stub_hf_get("/api/models", body: [])
       models = @api.list_models
-      assert_equal [], models
+
+      assert_empty models
     end
 
     # --- list_datasets ---
@@ -190,12 +211,14 @@ module DurableHuggingfaceHub
     def test_list_datasets_returns_array
       stub_hf_get("/api/datasets", body: [dataset_info_hash])
       datasets = @api.list_datasets
+
       assert_instance_of Array, datasets
     end
 
     def test_list_datasets_returns_dataset_info_objects
       stub_hf_get("/api/datasets", body: [dataset_info_hash])
       datasets = @api.list_datasets
+
       assert_instance_of Types::DatasetInfo, datasets.first
     end
 
@@ -204,12 +227,14 @@ module DurableHuggingfaceHub
     def test_list_spaces_returns_array
       stub_hf_get("/api/spaces", body: [space_info_hash])
       spaces = @api.list_spaces
+
       assert_instance_of Array, spaces
     end
 
     def test_list_spaces_returns_space_info_objects
       stub_hf_get("/api/spaces", body: [space_info_hash])
       spaces = @api.list_spaces
+
       assert_instance_of Types::SpaceInfo, spaces.first
     end
 
@@ -217,16 +242,19 @@ module DurableHuggingfaceHub
 
     def test_repo_exists_returns_true_when_found
       stub_hf_get("/api/models/bert-base-uncased", body: model_info_hash)
+
       assert @api.repo_exists("bert-base-uncased")
     end
 
     def test_repo_exists_returns_false_when_not_found
       stub_hf_get("/api/models/nonexistent/model", body: { "error" => "Not found" }, status: 404)
+
       refute @api.repo_exists("nonexistent/model")
     end
 
     def test_repo_exists_for_dataset
       stub_hf_get("/api/datasets/squad", body: dataset_info_hash)
+
       assert @api.repo_exists("squad", repo_type: "dataset")
     end
 
@@ -235,12 +263,14 @@ module DurableHuggingfaceHub
     def test_whoami_returns_user_object
       stub_hf_get("/api/whoami-v2", body: user_hash)
       user = @api.whoami
+
       assert_instance_of Types::User, user
     end
 
     def test_whoami_returns_correct_name
       stub_hf_get("/api/whoami-v2", body: user_hash)
       user = @api.whoami
+
       assert_equal "test-user", user.name
     end
 
@@ -260,6 +290,7 @@ module DurableHuggingfaceHub
         .with(query: hash_including("recursive" => "true"))
         .to_return(status: 200, body: file_tree.to_json, headers: { "Content-Type" => "application/json" })
       files = @api.list_repo_files(repo_id: "bert-base-uncased")
+
       assert_includes files, "config.json"
       assert_includes files, "pytorch_model.bin"
     end
@@ -276,6 +307,7 @@ module DurableHuggingfaceHub
         .with(query: hash_including("revision" => "main"))
         .to_return(status: 200, body: tree_data.to_json, headers: { "Content-Type" => "application/json" })
       result = @api.list_repo_tree(repo_id: "bert-base-uncased")
+
       assert_instance_of Hash, result
       assert result.key?("config.json")
     end
@@ -288,6 +320,7 @@ module DurableHuggingfaceHub
         .with(query: hash_including("revision" => "main"))
         .to_return(status: 200, body: tree_data.to_json, headers: { "Content-Type" => "application/json" })
       result = @api.list_repo_tree(repo_id: "my-org/my-model")
+
       assert result.key?("models")
       assert_equal "directory", result["models"][:type]
     end
@@ -297,6 +330,7 @@ module DurableHuggingfaceHub
     def test_build_tree_structure_single_file
       items = [{ "path" => "config.json", "size" => 512 }]
       tree = @api.build_tree_structure(items)
+
       assert_equal "file", tree["config.json"][:type]
       assert_equal 512, tree["config.json"][:size]
     end
@@ -304,6 +338,7 @@ module DurableHuggingfaceHub
     def test_build_tree_structure_nested_path
       items = [{ "path" => "models/weights.bin", "size" => 1024 }]
       tree = @api.build_tree_structure(items)
+
       assert_equal "directory", tree["models"][:type]
       assert_equal "file", tree["models"][:children]["weights.bin"][:type]
     end
@@ -314,6 +349,7 @@ module DurableHuggingfaceHub
         { "path" => "model.bin", "size" => 200 }
       ]
       tree = @api.build_tree_structure(items)
+
       assert tree.key?("config.json")
       assert tree.key?("model.bin")
     end
@@ -321,8 +357,9 @@ module DurableHuggingfaceHub
     # --- delete_repo ---
 
     def test_delete_repo_returns_true
-      stub_request(:delete, /#{Regexp.escape(TestHelpers::HF_ENDPOINT + "/api/models/test-user/my-model")}/)
+      stub_request(:delete, /#{Regexp.escape("#{TestHelpers::HF_ENDPOINT}/api/models/test-user/my-model")}/)
         .to_return(status: 200, body: "{}", headers: { "Content-Type" => "application/json" })
+
       assert @api.delete_repo(repo_id: "test-user/my-model")
     end
 
@@ -335,12 +372,14 @@ module DurableHuggingfaceHub
     def test_file_exists_returns_true_when_found
       stub_request(:head, "#{TestHelpers::HF_ENDPOINT}/api/models/bert-base-uncased/resolve/main/config.json")
         .to_return(status: 200)
+
       assert @api.file_exists(repo_id: "bert-base-uncased", path_in_repo: "config.json")
     end
 
     def test_file_exists_returns_false_when_not_found
-      stub_request(:head, /#{Regexp.escape(TestHelpers::HF_ENDPOINT + "/api/models/bert-base-uncased/resolve/main/missing.json")}/)
+      stub_request(:head, /#{Regexp.escape("#{TestHelpers::HF_ENDPOINT}/api/models/bert-base-uncased/resolve/main/missing.json")}/)
         .to_return(status: 404)
+
       refute @api.file_exists(repo_id: "bert-base-uncased", path_in_repo: "missing.json")
     end
 
@@ -367,6 +406,7 @@ module DurableHuggingfaceHub
     def test_update_repo_visibility_returns_true
       stub_request(:post, "#{TestHelpers::HF_ENDPOINT}/api/models/test-user/my-model/settings")
         .to_return(status: 200, body: "{}", headers: { "Content-Type" => "application/json" })
+
       assert @api.update_repo_visibility(repo_id: "test-user/my-model", private: true)
     end
 
@@ -375,6 +415,7 @@ module DurableHuggingfaceHub
     def test_move_repo_returns_true
       stub_request(:post, "#{TestHelpers::HF_ENDPOINT}/api/models/old-user/old-model/move")
         .to_return(status: 200, body: "{}", headers: { "Content-Type" => "application/json" })
+
       assert @api.move_repo(from_repo_id: "old-user/old-model", to_repo_id: "new-user/new-model")
     end
 
@@ -389,16 +430,18 @@ module DurableHuggingfaceHub
     # --- delete_branch ---
 
     def test_delete_branch_returns_true
-      stub_request(:delete, /#{Regexp.escape(TestHelpers::HF_ENDPOINT + "/api/models/test-user/my-model/branches/my-branch")}/)
+      stub_request(:delete, /#{Regexp.escape("#{TestHelpers::HF_ENDPOINT}/api/models/test-user/my-model/branches/my-branch")}/)
         .to_return(status: 200, body: "{}", headers: { "Content-Type" => "application/json" })
+
       assert @api.delete_branch(repo_id: "test-user/my-model", branch_name: "my-branch")
     end
 
     # --- delete_tag ---
 
     def test_delete_tag_returns_true
-      stub_request(:delete, /#{Regexp.escape(TestHelpers::HF_ENDPOINT + "/api/models/test-user/my-model/tags/v1.0")}/)
+      stub_request(:delete, /#{Regexp.escape("#{TestHelpers::HF_ENDPOINT}/api/models/test-user/my-model/tags/v1.0")}/)
         .to_return(status: 200, body: "{}", headers: { "Content-Type" => "application/json" })
+
       assert @api.delete_tag(repo_id: "test-user/my-model", tag_name: "v1.0")
     end
 
@@ -413,6 +456,7 @@ module DurableHuggingfaceHub
           "Content-Type" => "application/json"
         })
       result = @api.get_paths_info(repo_id: "bert-base-uncased", paths: ["config.json"])
+
       assert_instance_of Array, result
       assert_equal 1, result.size
     end
@@ -421,6 +465,7 @@ module DurableHuggingfaceHub
       stub_request(:head, "#{TestHelpers::HF_ENDPOINT}/api/models/bert-base-uncased/resolve/main/missing.bin")
         .to_return(status: 404)
       result = @api.get_paths_info(repo_id: "bert-base-uncased", paths: ["missing.bin"])
+
       assert_equal [nil], result
     end
 

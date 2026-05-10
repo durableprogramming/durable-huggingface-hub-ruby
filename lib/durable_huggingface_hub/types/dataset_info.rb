@@ -48,9 +48,9 @@ module DurableHuggingfaceHub
       #   @return [Boolean, nil] Whether the repository is private
       attribute :private, Types::OptionalBool.default(nil)
 
-       # @!attribute [r] gated
-       #   @return [Boolean, String, nil] Gated access status
-       attribute :gated, Types::OptionalGated.default(nil)
+      # @!attribute [r] gated
+      #   @return [Boolean, String, nil] Gated access status
+      attribute :gated, Types::OptionalGated.default(nil)
 
       # @!attribute [r] disabled
       #   @return [Boolean, nil] Whether the repository is disabled
@@ -80,41 +80,41 @@ module DurableHuggingfaceHub
       #   @return [String, nil] Dataset description
       attribute :description, Types::OptionalString.default(nil)
 
-       # @!attribute [r] citation
-       #   @return [String, nil] Citation information
-       attribute :citation, Types::OptionalString.default(nil)
+      # @!attribute [r] citation
+      #   @return [String, nil] Citation information
+      attribute :citation, Types::OptionalString.default(nil)
 
-       # @!attribute [r] downloads_all_time
-       #   @return [Integer, nil] Total number of downloads all time
-       attribute :downloads_all_time, Types::OptionalInteger.default(nil)
+      # @!attribute [r] downloads_all_time
+      #   @return [Integer, nil] Total number of downloads all time
+      attribute :downloads_all_time, Types::OptionalInteger.default(nil)
 
-       # @!attribute [r] paperswithcode_id
-       #   @return [String, nil] PapersWithCode identifier
-       attribute :paperswithcode_id, Types::OptionalString.default(nil)
+      # @!attribute [r] paperswithcode_id
+      #   @return [String, nil] PapersWithCode identifier
+      attribute :paperswithcode_id, Types::OptionalString.default(nil)
 
-       # @!attribute [r] trending_score
-       #   @return [Integer, nil] Trending score
-       attribute :trending_score, Types::OptionalInteger.default(nil)
+      # @!attribute [r] trending_score
+      #   @return [Integer, nil] Trending score
+      attribute :trending_score, Types::OptionalInteger.default(nil)
 
-       # Transform API response to filter out unknown keys
-       def self.from_hash(data)
-         transformed = data.dup
+      # Transform API response to filter out unknown keys
+      def self.from_hash(data)
+        transformed = data.dup
 
-         # Filter out unknown keys to avoid dry-struct errors
-         known_keys = [:id, :sha, :last_modified, :tags, :siblings, :private, :gated,
-                       :disabled, :downloads, :likes, :author, :created_at, :card_data,
-                       :description, :citation, :downloads_all_time, :paperswithcode_id,
-                       :trending_score,
-                       "id", "sha", "last_modified", "tags", "siblings", "private", "gated",
-                       "disabled", "downloads", "likes", "author", "created_at", "card_data",
-                       "description", "citation", "downloads_all_time", "paperswithcode_id",
-                       "trending_score"]
-         transformed = transformed.select { |k, _| known_keys.include?(k) }
+        # Filter out unknown keys to avoid dry-struct errors
+        known_keys = [:id, :sha, :last_modified, :tags, :siblings, :private, :gated,
+                      :disabled, :downloads, :likes, :author, :created_at, :card_data,
+                      :description, :citation, :downloads_all_time, :paperswithcode_id,
+                      :trending_score,
+                      "id", "sha", "last_modified", "tags", "siblings", "private", "gated",
+                      "disabled", "downloads", "likes", "author", "created_at", "card_data",
+                      "description", "citation", "downloads_all_time", "paperswithcode_id",
+                      "trending_score"]
+        transformed = transformed.slice(*known_keys)
 
-         new(transformed)
-       end
+        new(transformed)
+      end
 
-       # Returns the list of file names in the repository.
+      # Returns the list of file names in the repository.
       #
       # @return [Array<String>] File names
       def file_names

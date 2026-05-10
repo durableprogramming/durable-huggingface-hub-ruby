@@ -170,9 +170,7 @@ module DurableHuggingfaceHub
       def build_connection(timeout: nil, open_timeout: nil, proxy: nil)
         Faraday.new(url: @endpoint) do |conn|
           # Request/response logging (if logger provided)
-          if @logger
-            conn.response :logger, @logger, { headers: true, bodies: false }
-          end
+          conn.response :logger, @logger, { headers: true, bodies: false } if @logger
 
           # Follow 3xx redirects (HuggingFace Hub issues 307s for file resolve URLs)
           conn.response :follow_redirects, limit: 5
@@ -217,28 +215,28 @@ module DurableHuggingfaceHub
         )
       end
 
-       # Builds the full URL from a path.
-       #
-       # @param path [String] URL path or full URL
-       # @return [String] Full URL
-       def build_url(path)
-         return path if path.start_with?("http://", "https://")
+      # Builds the full URL from a path.
+      #
+      # @param path [String] URL path or full URL
+      # @return [String] Full URL
+      def build_url(path)
+        return path if path.start_with?("http://", "https://")
 
-         # Ensure endpoint doesn't end with / and path doesn't start with /
-         endpoint = @endpoint.chomp("/")
-         path = path.start_with?("/") ? path : "/#{path}"
-         "#{endpoint}#{path}"
-       end
+        # Ensure endpoint doesn't end with / and path doesn't start with /
+        endpoint = @endpoint.chomp("/")
+        path = "/#{path}" unless path.start_with?("/")
+        "#{endpoint}#{path}"
+      end
 
-       # Prepares request body for transmission.
-       #
-       # @param body [Hash, String] Request body
-       # @return [String] Prepared body
-       def prepare_body(body)
-         return body unless body.is_a?(Hash)
+      # Prepares request body for transmission.
+      #
+      # @param body [Hash, String] Request body
+      # @return [String] Prepared body
+      def prepare_body(body)
+        return body unless body.is_a?(Hash)
 
-         body.to_json
-       end
+        body.to_json
+      end
 
       # Handles HTTP response and raises errors for non-success status.
       #
@@ -257,7 +255,11 @@ module DurableHuggingfaceHub
       # @raise [HfHubHTTPError] Appropriate error subclass
       def raise_http_error(response)
         status = response.status
-        body = response.body.is_a?(String) ? response.body : (response.body ? response.body.to_json : nil)
+        body = if response.body.is_a?(String)
+                 response.body
+               else
+                 response.body&.to_json
+               end
         request_id = Headers.extract_request_id(response.headers)
 
         case status
@@ -268,7 +270,8 @@ module DurableHuggingfaceHub
         when 403
           # Try to determine if it's gated or disabled
           if body&.include?("gated")
-            raise GatedRepoError.new("unknown", message: extract_error_message(body, "Access to this repository is gated"))
+            raise GatedRepoError.new("unknown",
+                                     message: extract_error_message(body, "Access to this repository is gated"))
           elsif body&.include?("disabled")
             raise DisabledRepoError.new("unknown", message: extract_error_message(body, "Repository has been disabled"))
           else
@@ -311,21 +314,21 @@ module DurableHuggingfaceHub
         case error
         when Faraday::RetriableResponse
           # Retry middleware exhausted retries - extract response and handle as HTTP error
-          if error.response && error.response.is_a?(Hash) && error.response[:response]
+          if error.response.is_a?(Hash) && error.response[:response]
             raise_http_error(error.response[:response])
-          elsif error.response && error.response.respond_to?(:status)
+          elsif error.response.respond_to?(:status)
             raise_http_error(error.response)
           else
-            raise HfHubHTTPError.new("Retryable error: #{error.message}")
+            raise HfHubHTTPError, "Retryable error: #{error.message}"
           end
         when Faraday::TimeoutError
-          raise HfHubHTTPError.new("Request timed out: #{error.message}")
+          raise HfHubHTTPError, "Request timed out: #{error.message}"
         when Faraday::ConnectionFailed
-          raise HfHubHTTPError.new("Connection failed: #{error.message}")
+          raise HfHubHTTPError, "Connection failed: #{error.message}"
         when Faraday::SSLError
-          raise HfHubHTTPError.new("SSL error: #{error.message}")
+          raise HfHubHTTPError, "SSL error: #{error.message}"
         else
-          raise HfHubHTTPError.new("HTTP error: #{error.message}")
+          raise HfHubHTTPError, "HTTP error: #{error.message}"
         end
       end
     end

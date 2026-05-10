@@ -23,6 +23,7 @@ module DurableHuggingfaceHub
         stub_request(:get, "#{ENDPOINT}/api/models")
           .to_return(status: 200, body: "[]", headers: { "Content-Type" => "application/json" })
         response = @client.get("/api/models")
+
         assert_equal 200, response.status
       end
 
@@ -31,6 +32,7 @@ module DurableHuggingfaceHub
           .to_return(status: 200, body: '{"url":"https://huggingface.co/test/repo"}',
                      headers: { "Content-Type" => "application/json" })
         response = @client.post("/api/repos/create", body: { name: "repo" })
+
         assert_equal 200, response.status
       end
 
@@ -38,6 +40,7 @@ module DurableHuggingfaceHub
         stub_request(:head, "#{ENDPOINT}/api/models/bert-base-uncased/resolve/main/config.json")
           .to_return(status: 200, headers: { "Content-Type" => "application/json" })
         response = @client.head("/api/models/bert-base-uncased/resolve/main/config.json")
+
         assert_equal 200, response.status
       end
 
@@ -45,6 +48,7 @@ module DurableHuggingfaceHub
         stub_request(:delete, "#{ENDPOINT}/api/models/test-user/my-model")
           .to_return(status: 200, body: "{}", headers: { "Content-Type" => "application/json" })
         response = @client.delete("/api/models/test-user/my-model")
+
         assert_equal 200, response.status
       end
 
@@ -54,6 +58,7 @@ module DurableHuggingfaceHub
         stub_request(:get, "#{ENDPOINT}/api/test")
           .to_return(status: 200, body: "{}", headers: { "Content-Type" => "application/json" })
         @client.get("/api/test")
+
         assert_requested :get, "#{ENDPOINT}/api/test"
       end
 
@@ -61,6 +66,7 @@ module DurableHuggingfaceHub
         stub_request(:get, "https://example.com/api/test")
           .to_return(status: 200, body: "{}", headers: { "Content-Type" => "application/json" })
         @client.get("https://example.com/api/test")
+
         assert_requested :get, "https://example.com/api/test"
       end
 
@@ -118,6 +124,7 @@ module DurableHuggingfaceHub
           .with(query: { "limit" => "10", "search" => "bert" })
           .to_return(status: 200, body: "[]", headers: { "Content-Type" => "application/json" })
         response = @client.get("/api/models", params: { limit: 10, search: "bert" })
+
         assert_equal 200, response.status
       end
 
@@ -128,6 +135,7 @@ module DurableHuggingfaceHub
           .with(headers: { "Authorization" => "Bearer hf_test_token" })
           .to_return(status: 200, body: "{}", headers: { "Content-Type" => "application/json" })
         @client.get("/api/whoami-v2")
+
         assert_requested :get, "#{ENDPOINT}/api/whoami-v2",
                          headers: { "Authorization" => "Bearer hf_test_token" }
       end
@@ -140,6 +148,7 @@ module DurableHuggingfaceHub
         stub_request(:get, "#{ENDPOINT}/api/public")
           .to_return(status: 200, body: "{}", headers: { "Content-Type" => "application/json" })
         client.get("/api/public")
+
         assert_not_requested :get, "#{ENDPOINT}/api/public",
                              headers: { "Authorization" => /Bearer/ }
       ensure

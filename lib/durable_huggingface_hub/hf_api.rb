@@ -107,9 +107,7 @@ module DurableHuggingfaceHub
       DurableHuggingfaceHub::Utils::Validators.validate_repo_id(repo_id)
       repo_type = DurableHuggingfaceHub::Utils::Validators.validate_repo_type(repo_type)
 
-      if revision
-        DurableHuggingfaceHub::Utils::Validators.validate_revision(revision)
-      end
+      DurableHuggingfaceHub::Utils::Validators.validate_revision(revision) if revision
 
       # Build API path
       path = case repo_type.to_s
@@ -128,18 +126,18 @@ module DurableHuggingfaceHub
       params[:revision] = revision if revision
 
       # Make request
-       response = http_client.get(path, params: params, timeout: timeout)
+      response = http_client.get(path, params: params, timeout: timeout)
 
-       # Parse response based on repo_type
-       body = response.body.is_a?(String) ? JSON.parse(response.body) : response.body
-       case repo_type.to_s
-       when "model"
-         DurableHuggingfaceHub::Types::ModelInfo.from_hash(body)
-       when "dataset"
-         DurableHuggingfaceHub::Types::DatasetInfo.from_hash(body)
-       when "space"
-         DurableHuggingfaceHub::Types::SpaceInfo.from_hash(body)
-       end
+      # Parse response based on repo_type
+      body = response.body.is_a?(String) ? JSON.parse(response.body) : response.body
+      case repo_type.to_s
+      when "model"
+        DurableHuggingfaceHub::Types::ModelInfo.from_hash(body)
+      when "dataset"
+        DurableHuggingfaceHub::Types::DatasetInfo.from_hash(body)
+      when "space"
+        DurableHuggingfaceHub::Types::SpaceInfo.from_hash(body)
+      end
     end
 
     # Get information about a specific model
@@ -278,11 +276,11 @@ module DurableHuggingfaceHub
         full: full
       )
 
-       response = http_client.get(path, params: params, timeout: timeout)
+      response = http_client.get(path, params: params, timeout: timeout)
 
-       # Response is an array of model objects
-       body = response.body.is_a?(String) ? JSON.parse(response.body) : response.body
-       body.map { |model_data| DurableHuggingfaceHub::Types::ModelInfo.from_hash(model_data) }
+      # Response is an array of model objects
+      body = response.body.is_a?(String) ? JSON.parse(response.body) : response.body
+      body.map { |model_data| DurableHuggingfaceHub::Types::ModelInfo.from_hash(model_data) }
     end
 
     # List datasets from the HuggingFace Hub with optional filtering
@@ -315,9 +313,9 @@ module DurableHuggingfaceHub
         full: full
       )
 
-       response = http_client.get(path, params: params, timeout: timeout)
-       body = response.body.is_a?(String) ? JSON.parse(response.body) : response.body
-       body.map { |dataset_data| DurableHuggingfaceHub::Types::DatasetInfo.from_hash(dataset_data) }
+      response = http_client.get(path, params: params, timeout: timeout)
+      body = response.body.is_a?(String) ? JSON.parse(response.body) : response.body
+      body.map { |dataset_data| DurableHuggingfaceHub::Types::DatasetInfo.from_hash(dataset_data) }
     end
 
     # List spaces from the HuggingFace Hub with optional filtering
@@ -350,9 +348,9 @@ module DurableHuggingfaceHub
         full: full
       )
 
-       response = http_client.get(path, params: params, timeout: timeout)
-       body = response.body.is_a?(String) ? JSON.parse(response.body) : response.body
-       body.map { |space_data| DurableHuggingfaceHub::Types::SpaceInfo.from_hash(space_data) }
+      response = http_client.get(path, params: params, timeout: timeout)
+      body = response.body.is_a?(String) ? JSON.parse(response.body) : response.body
+      body.map { |space_data| DurableHuggingfaceHub::Types::SpaceInfo.from_hash(space_data) }
     end
 
     # Check if a repository exists on the HuggingFace Hub
@@ -389,12 +387,12 @@ module DurableHuggingfaceHub
     #   user = api.whoami
     #   puts "Logged in as: #{user.name}"
     #   puts "Type: #{user.type}"
-     def whoami(timeout: nil)
-       path = "/api/whoami-v2"
-       response = http_client.get(path, timeout: timeout)
-       body = response.body.is_a?(String) ? JSON.parse(response.body) : response.body
-       DurableHuggingfaceHub::Types::User.from_hash(body)
-     end
+    def whoami(timeout: nil)
+      path = "/api/whoami-v2"
+      response = http_client.get(path, timeout: timeout)
+      body = response.body.is_a?(String) ? JSON.parse(response.body) : response.body
+      DurableHuggingfaceHub::Types::User.from_hash(body)
+    end
 
     # List files in a repository.
     #
@@ -405,19 +403,19 @@ module DurableHuggingfaceHub
     # @return [Array<String>] List of file paths in the repository
     # @raise [RepositoryNotFoundError] If repository doesn't exist
     # @raise [RevisionNotFoundError] If revision doesn't exist
-     def list_repo_files(repo_id:, repo_type: "model", revision: nil, timeout: nil)
-       DurableHuggingfaceHub::Utils::Validators.validate_repo_id(repo_id)
-       repo_type = DurableHuggingfaceHub::Utils::Validators.validate_repo_type(repo_type)
-       revision = DurableHuggingfaceHub::Utils::Validators.validate_revision(revision) if revision
+    def list_repo_files(repo_id:, repo_type: "model", revision: nil, timeout: nil)
+      DurableHuggingfaceHub::Utils::Validators.validate_repo_id(repo_id)
+      repo_type = DurableHuggingfaceHub::Utils::Validators.validate_repo_type(repo_type)
+      revision = DurableHuggingfaceHub::Utils::Validators.validate_revision(revision) if revision
 
-       path = "/api/#{repo_type}s/#{repo_id}/tree"
-       params = { recursive: true }
-       params[:revision] = revision if revision
+      path = "/api/#{repo_type}s/#{repo_id}/tree"
+      params = { recursive: true }
+      params[:revision] = revision if revision
 
-       response = http_client.get(path, params: params, timeout: timeout)
-       body = response.body.is_a?(String) ? JSON.parse(response.body) : response.body
-       body.map { |file_data| file_data["path"] }
-     end
+      response = http_client.get(path, params: params, timeout: timeout)
+      body = response.body.is_a?(String) ? JSON.parse(response.body) : response.body
+      body.map { |file_data| file_data["path"] }
+    end
 
     # List repository contents in a hierarchical tree structure.
     #
@@ -456,11 +454,11 @@ module DurableHuggingfaceHub
       params = { recursive: recursive }
       params[:revision] = revision if revision
 
-       response = http_client.get(api_path, params: params, timeout: timeout)
+      response = http_client.get(api_path, params: params, timeout: timeout)
 
-       # Organize the response into a tree structure
-       body = response.body.is_a?(String) ? JSON.parse(response.body) : response.body
-       build_tree_structure(body)
+      # Organize the response into a tree structure
+      body = response.body.is_a?(String) ? JSON.parse(response.body) : response.body
+      build_tree_structure(body)
     end
 
     # Get metadata about a file in a repository without downloading it.
@@ -517,10 +515,9 @@ module DurableHuggingfaceHub
       rescue DurableHuggingfaceHub::HfHubHTTPError => e
         # Convert 404 to EntryNotFoundError for consistency
         if e.status_code == 404
-          raise DurableHuggingfaceHub::EntryNotFoundError.new(
-            "File #{filename} not found in #{repo_id}@#{revision}"
-          )
+          raise DurableHuggingfaceHub::EntryNotFoundError, "File #{filename} not found in #{repo_id}@#{revision}"
         end
+
         raise
       end
     end
@@ -557,6 +554,7 @@ module DurableHuggingfaceHub
     def get_paths_info(repo_id:, paths:, repo_type: "model", revision: nil, timeout: nil)
       DurableHuggingfaceHub::Utils::Validators.validate_repo_id(repo_id)
       raise ArgumentError, "paths must be an array" unless paths.is_a?(Array)
+
       paths.each { |path| DurableHuggingfaceHub::Utils::Validators.validate_filename(path) }
       repo_type = DurableHuggingfaceHub::Utils::Validators.validate_repo_type(repo_type)
       revision = DurableHuggingfaceHub::Utils::Validators.validate_revision(revision) if revision
@@ -565,17 +563,15 @@ module DurableHuggingfaceHub
       # For now, implement sequentially. In the future, this could be optimized
       # with concurrent requests or batch API calls if available.
       paths.map do |path|
-        begin
-          get_hf_file_metadata(
-            repo_id: repo_id,
-            filename: path,
-            repo_type: repo_type,
-            revision: revision,
-            timeout: timeout
-          )
-        rescue DurableHuggingfaceHub::EntryNotFoundError
-          nil # Return nil for missing files
-        end
+        get_hf_file_metadata(
+          repo_id: repo_id,
+          filename: path,
+          repo_type: repo_type,
+          revision: revision,
+          timeout: timeout
+        )
+      rescue DurableHuggingfaceHub::EntryNotFoundError
+        nil # Return nil for missing files
       end
     end
 
@@ -617,14 +613,16 @@ module DurableHuggingfaceHub
     # Create a new repository on the HuggingFace Hub.
     #
     # @param repo_id [String] The ID of the repository to create (e.g., "my-username/my-repo").
-    # @param repo_type [String, Symbol] The type of the repository ("model", "dataset", or "space"). Defaults to "model".
+    # @param repo_type [String, Symbol] The type of the repository ("model", "dataset", or "space").
+    #   Defaults to "model".
     # @param private [Boolean] Whether the repository should be private. Defaults to false.
     # @param organization [String, nil] The organization namespace to create the repository under.
     #   If nil, the repository is created under the authenticated user's namespace.
     # @param timeout [Numeric, nil] Request timeout in seconds.
     # @return [String] The URL of the newly created repository.
     # @raise [ArgumentError] If repo_id or repo_type is invalid.
-    # @raise [DurableHuggingfaceHub::HfHubHTTPError] For API errors (e.g., repository already exists, authentication error).
+    # @raise [DurableHuggingfaceHub::HfHubHTTPError] For API errors (e.g., repository already exists,
+    #   authentication error).
     def create_repo(repo_id:, repo_type: "model", private: false, organization: nil, timeout: nil)
       DurableHuggingfaceHub::Utils::Validators.validate_repo_id(repo_id)
       repo_type = DurableHuggingfaceHub::Utils::Validators.validate_repo_type(repo_type)
@@ -656,7 +654,8 @@ module DurableHuggingfaceHub
     # Delete a repository from the HuggingFace Hub.
     #
     # @param repo_id [String] The ID of the repository to delete (e.g., "my-username/my-repo").
-    # @param repo_type [String, Symbol] The type of the repository ("model", "dataset", or "space"). Defaults to "model".
+    # @param repo_type [String, Symbol] The type of the repository ("model", "dataset", or "space").
+    #   Defaults to "model".
     # @param token [String, nil] HuggingFace API token. If nil, will attempt to retrieve from environment or token file.
     # @param timeout [Numeric, nil] Request timeout in seconds.
     # @return [Boolean] True if the repository was successfully deleted.
@@ -682,7 +681,7 @@ module DurableHuggingfaceHub
     # @raise [ArgumentError] If repo_id or repo_type is invalid.
     # @raise [DurableHuggingfaceHub::RepositoryNotFoundError] If the repository does not exist.
     # @raise [DurableHuggingfaceHub::HfHubHTTPError] For other API errors.
-    def update_repo_visibility(repo_id:, repo_type: "model", private:, timeout: nil)
+    def update_repo_visibility(repo_id:, private:, repo_type: "model", timeout: nil)
       DurableHuggingfaceHub::Utils::Validators.validate_repo_id(repo_id)
       repo_type = DurableHuggingfaceHub::Utils::Validators.validate_repo_type(repo_type)
 
@@ -758,7 +757,8 @@ module DurableHuggingfaceHub
     #
     # @param from_repo_id [String] The ID of the Space to duplicate.
     # @param to_repo_id [String] The ID for the new duplicated Space.
-    # @param private [Boolean, nil] Whether the new Space should be private. Defaults to the original Space's visibility.
+    # @param private [Boolean, nil] Whether the new Space should be private.
+    #   Defaults to the original Space's visibility.
     # @param organization [String, nil] The organization namespace to create the new Space under.
     # @param timeout [Numeric, nil] Request timeout in seconds.
     # @return [String] The URL of the newly duplicated Space.
@@ -816,7 +816,8 @@ module DurableHuggingfaceHub
       }.compact
 
       file_content = if path_or_fileobj.is_a?(String) || path_or_fileobj.is_a?(Pathname)
-                       Faraday::Multipart::FilePart.new(path_or_fileobj, "application/octet-stream", Pathname(path_or_fileobj).basename.to_s)
+                       Faraday::Multipart::FilePart.new(path_or_fileobj, "application/octet-stream",
+                                                        Pathname(path_or_fileobj).basename.to_s)
                      else # Assume IO object
                        Faraday::Multipart::FilePart.new(path_or_fileobj, "application/octet-stream")
                      end
@@ -825,9 +826,9 @@ module DurableHuggingfaceHub
         file: file_content
       }
 
-       response = http_client.post(path, params: params, body: payload, timeout: timeout)
-       body = response.body.is_a?(String) ? JSON.parse(response.body) : response.body
-       body["url"]
+      response = http_client.post(path, params: params, body: payload, timeout: timeout)
+      body = response.body.is_a?(String) ? JSON.parse(response.body) : response.body
+      body["url"]
     end
 
     # Upload an entire folder to a repository on the HuggingFace Hub.
@@ -989,12 +990,12 @@ module DurableHuggingfaceHub
       revision ||= "main"
 
       path = "/api/#{repo_type}s/#{repo_id}/resolve/#{revision}/#{path_in_repo}"
-       begin
-         http_client.head(path, timeout: timeout)
-         true
-       rescue DurableHuggingfaceHub::RepositoryNotFoundError, DurableHuggingfaceHub::EntryNotFoundError
-         false
-       end
+      begin
+        http_client.head(path, timeout: timeout)
+        true
+      rescue DurableHuggingfaceHub::RepositoryNotFoundError, DurableHuggingfaceHub::EntryNotFoundError
+        false
+      end
     end
 
     # Create a new commit with multiple file operations.
@@ -1059,14 +1060,14 @@ module DurableHuggingfaceHub
       revision ||= "main"
 
       path = "/api/#{repo_type}s/#{repo_id}/branches"
-       payload = {
-         name: branch_name,
-         revision: revision
-       }.compact
+      payload = {
+        name: branch_name,
+        revision: revision
+      }.compact
 
-       response = http_client.post(path, body: payload, timeout: timeout)
-       body = response.body.is_a?(String) ? JSON.parse(response.body) : response.body
-       body["name"]
+      response = http_client.post(path, body: payload, timeout: timeout)
+      body = response.body.is_a?(String) ? JSON.parse(response.body) : response.body
+      body["name"]
     end
 
     # Delete a branch from a repository.
@@ -1108,15 +1109,15 @@ module DurableHuggingfaceHub
       revision ||= "main"
 
       path = "/api/#{repo_type}s/#{repo_id}/tags"
-       payload = {
-         name: tag_name,
-         revision: revision,
-         message: message
-       }.compact
+      payload = {
+        name: tag_name,
+        revision: revision,
+        message: message
+      }.compact
 
-       response = http_client.post(path, body: payload, timeout: timeout)
-       body = response.body.is_a?(String) ? JSON.parse(response.body) : response.body
-       body["name"]
+      response = http_client.post(path, body: payload, timeout: timeout)
+      body = response.body.is_a?(String) ? JSON.parse(response.body) : response.body
+      body["name"]
     end
 
     # Delete a tag from a repository.
@@ -1152,12 +1153,12 @@ module DurableHuggingfaceHub
       DurableHuggingfaceHub::Utils::Validators.validate_repo_id(repo_id)
       repo_type = DurableHuggingfaceHub::Utils::Validators.validate_repo_type(repo_type)
 
-       path = "/api/#{repo_type}s/#{repo_id}/refs"
-       response = http_client.get(path, timeout: timeout)
+      path = "/api/#{repo_type}s/#{repo_id}/refs"
+      response = http_client.get(path, timeout: timeout)
 
-       body = response.body.is_a?(String) ? JSON.parse(response.body) : response.body
-       branches = body["branches"].map { |branch_data| DurableHuggingfaceHub::Types::GitRefInfo.from_hash(branch_data) }
-       tags = body["tags"].map { |tag_data| DurableHuggingfaceHub::Types::GitRefInfo.from_hash(tag_data) }
+      body = response.body.is_a?(String) ? JSON.parse(response.body) : response.body
+      branches = body["branches"].map { |branch_data| DurableHuggingfaceHub::Types::GitRefInfo.from_hash(branch_data) }
+      tags = body["tags"].map { |tag_data| DurableHuggingfaceHub::Types::GitRefInfo.from_hash(tag_data) }
 
       { branches: branches, tags: tags }
     end
@@ -1166,7 +1167,8 @@ module DurableHuggingfaceHub
     #
     # @param repo_id [String] The ID of the repository.
     # @param repo_type [String, Symbol] The type of the repository. Defaults to "model".
-    # @param revision [String, nil] The Git revision (branch, tag, or commit SHA) to list commits from. Defaults to "main".
+    # @param revision [String, nil] The Git revision (branch, tag, or commit SHA) to list commits from.
+    #   Defaults to "main".
     # @param limit [Integer, nil] The maximum number of commits to return.
     # @param timeout [Numeric, nil] Request timeout in seconds.
     # @return [Array<DurableHuggingfaceHub::Types::CommitInfo>] A list of commit information objects.
@@ -1186,9 +1188,9 @@ module DurableHuggingfaceHub
         limit: limit
       }.compact
 
-       response = http_client.get(path, params: params, timeout: timeout)
-       body = response.body.is_a?(String) ? JSON.parse(response.body) : response.body
-       body.map do |commit_data|
+      response = http_client.get(path, params: params, timeout: timeout)
+      body = response.body.is_a?(String) ? JSON.parse(response.body) : response.body
+      body.map do |commit_data|
         # Flatten the nested commit structure
         commit = commit_data["commit"]
         author = commit["author"]
@@ -1206,7 +1208,8 @@ module DurableHuggingfaceHub
     #
     # @param repo_id [String] The ID of the repository.
     # @param repo_type [String, Symbol] The type of the repository. Defaults to "model".
-    # @param revision [String, nil] The Git revision (branch, tag, or commit SHA) to list LFS files from. Defaults to "main".
+    # @param revision [String, nil] The Git revision (branch, tag, or commit SHA) to list LFS files from.
+    #   Defaults to "main".
     # @param timeout [Numeric, nil] Request timeout in seconds.
     # @return [Array<Hash>] A list of LFS file information hashes.
     # @raise [ArgumentError] If repo_id or repo_type is invalid.
@@ -1222,8 +1225,8 @@ module DurableHuggingfaceHub
       path = "/api/#{repo_type}s/#{repo_id}/lfs/objects"
       params = { revision: revision }.compact
 
-       response = http_client.get(path, params: params, timeout: timeout)
-       response.body.is_a?(String) ? JSON.parse(response.body) : response.body
+      response = http_client.get(path, params: params, timeout: timeout)
+      response.body.is_a?(String) ? JSON.parse(response.body) : response.body
     end
 
     # Permanently delete LFS files from a repository.

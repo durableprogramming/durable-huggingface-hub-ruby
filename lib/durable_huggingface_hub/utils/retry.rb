@@ -67,32 +67,28 @@ module DurableHuggingfaceHub
         last_error = nil
 
         loop do
-          begin
-            return yield
-          rescue => e
-            attempt += 1
-            last_error = e
+          return yield
+        rescue StandardError => e
+          attempt += 1
+          last_error = e
 
-            # Check if error is retryable
-            unless retryable_error?(e)
-              raise e
-            end
+          # Check if error is retryable
+          raise e unless retryable_error?(e)
 
-            # Check if we've exhausted retries
-            if attempt > max_retries
-              logger&.error("Max retries (#{max_retries}) exhausted for #{e.class}: #{e.message}")
-              raise e
-            end
-
-            # Calculate delay with exponential backoff
-            delay = calculate_delay(attempt, initial_delay)
-
-            # Log retry attempt
-            logger&.warn("Retry attempt #{attempt}/#{max_retries} after #{delay}s due to #{e.class}: #{e.message}")
-
-            # Wait before retrying
-            sleep(delay)
+          # Check if we've exhausted retries
+          if attempt > max_retries
+            logger&.error("Max retries (#{max_retries}) exhausted for #{e.class}: #{e.message}")
+            raise e
           end
+
+          # Calculate delay with exponential backoff
+          delay = calculate_delay(attempt, initial_delay)
+
+          # Log retry attempt
+          logger&.warn("Retry attempt #{attempt}/#{max_retries} after #{delay}s due to #{e.class}: #{e.message}")
+
+          # Wait before retrying
+          sleep(delay)
         end
       end
 
@@ -105,9 +101,7 @@ module DurableHuggingfaceHub
         return true if RETRYABLE_ERRORS.any? { |klass| error.is_a?(klass) }
 
         # Check if it's an HTTP error with retryable status
-        if error.is_a?(HfHubHTTPError) && error.status_code
-          return RETRYABLE_STATUS_CODES.include?(error.status_code)
-        end
+        return RETRYABLE_STATUS_CODES.include?(error.status_code) if error.is_a?(HfHubHTTPError) && error.status_code
 
         # Check Faraday response errors
         if error.respond_to?(:response) && error.response
@@ -129,37 +123,37 @@ module DurableHuggingfaceHub
       #   Retry.calculate_delay(2, 1.0)  # => 2.0
       #   Retry.calculate_delay(3, 1.0)  # => 4.0
       #   Retry.calculate_delay(4, 1.0)  # => 8.0
-       def self.calculate_delay(attempt, initial_delay)
-         # Exponential backoff: initial_delay * (2 ^ (attempt - 1))
-         delay = initial_delay * (BACKOFF_MULTIPLIER**(attempt - 1))
+      def self.calculate_delay(attempt, initial_delay)
+        # Exponential backoff: initial_delay * (2 ^ (attempt - 1))
+        delay = initial_delay * (BACKOFF_MULTIPLIER**(attempt - 1))
 
-         # Cap at maximum delay
-         [delay, MAX_DELAY].min
-       end
+        # Cap at maximum delay
+        [delay, MAX_DELAY].min
+      end
 
-       # Validates the max_retries parameter.
-       #
-       # @param max_retries [Integer] Maximum number of retry attempts
-       # @raise [ArgumentError] If max_retries is invalid
-       # @private
-       def self.validate_max_retries(max_retries)
-         unless max_retries.is_a?(Integer) && max_retries >= 0
-           raise ArgumentError, "max_retries must be a non-negative integer, got #{max_retries.inspect}"
-         end
-       end
-       private_class_method :validate_max_retries
+      # Validates the max_retries parameter.
+      #
+      # @param max_retries [Integer] Maximum number of retry attempts
+      # @raise [ArgumentError] If max_retries is invalid
+      # @private
+      def self.validate_max_retries(max_retries)
+        unless max_retries.is_a?(Integer) && max_retries >= 0
+          raise ArgumentError, "max_retries must be a non-negative integer, got #{max_retries.inspect}"
+        end
+      end
+      private_class_method :validate_max_retries
 
-       # Validates the initial_delay parameter.
-       #
-       # @param initial_delay [Numeric] Initial delay in seconds
-       # @raise [ArgumentError] If initial_delay is invalid
-       # @private
-       def self.validate_initial_delay(initial_delay)
-         unless initial_delay.is_a?(Numeric) && initial_delay > 0
-           raise ArgumentError, "initial_delay must be a positive number, got #{initial_delay.inspect}"
-         end
-       end
-       private_class_method :validate_initial_delay
-     end
-   end
- end
+      # Validates the initial_delay parameter.
+      #
+      # @param initial_delay [Numeric] Initial delay in seconds
+      # @raise [ArgumentError] If initial_delay is invalid
+      # @private
+      def self.validate_initial_delay(initial_delay)
+        unless initial_delay.is_a?(Numeric) && initial_delay.positive?
+          raise ArgumentError, "initial_delay must be a positive number, got #{initial_delay.inspect}"
+        end
+      end
+      private_class_method :validate_initial_delay
+    end
+  end
+end

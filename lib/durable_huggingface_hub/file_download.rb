@@ -108,14 +108,11 @@ module DurableHuggingfaceHub
       # Check if we can use local files only
       if local_files_only
         cached_path = find_cached_file(storage_folder, filename, revision)
-        if cached_path
-          return cached_path
-        else
-          raise LocalEntryNotFoundError.new(
-            "File #{filename} not found in local cache for #{repo_id}@#{revision}. " \
-            "Cannot download because local_files_only=true"
-          )
-        end
+        return cached_path if cached_path
+
+        raise LocalEntryNotFoundError, "File #{filename} not found in local cache for #{repo_id}@#{revision}. " \
+                                       "Cannot download because local_files_only=true"
+
       end
 
       # Get token for authentication
@@ -237,9 +234,7 @@ module DurableHuggingfaceHub
         else
           # Try to read commit hash from refs
           ref_file = storage_folder.join("refs", revision)
-          if ref_file.exist?
-            commit_hash = ref_file.read.strip
-          end
+          commit_hash = ref_file.read.strip if ref_file.exist?
         end
 
         # Try to locate snapshot folder for this commit hash
@@ -262,18 +257,16 @@ module DurableHuggingfaceHub
 
         # Could not find cached files - raise appropriate error
         if local_files_only
-          raise LocalEntryNotFoundError.new(
-            "Cannot find an appropriate cached snapshot folder for #{repo_id}@#{revision}. " \
-            "To enable downloads, set local_files_only=false"
-          )
+          raise LocalEntryNotFoundError,
+                "Cannot find an appropriate cached snapshot folder for #{repo_id}@#{revision}. " \
+                "To enable downloads, set local_files_only=false"
         elsif api_call_error.is_a?(RepositoryNotFoundError) || api_call_error.is_a?(RevisionNotFoundError)
           raise api_call_error
         else
-          raise LocalEntryNotFoundError.new(
-            "An error occurred while trying to locate files on the Hub, and we cannot find " \
-            "the appropriate snapshot folder for #{repo_id}@#{revision} in the local cache. " \
-            "Please check your internet connection and try again. Error: #{api_call_error&.message}"
-          )
+          raise LocalEntryNotFoundError,
+                "An error occurred while trying to locate files on the Hub, and we cannot find " \
+                "the appropriate snapshot folder for #{repo_id}@#{revision} in the local cache. " \
+                "Please check your internet connection and try again. Error: #{api_call_error&.message}"
         end
       end
 
@@ -285,20 +278,19 @@ module DurableHuggingfaceHub
       snapshot_folder = storage_folder.join("snapshots", commit_hash)
 
       # Store ref if revision is not a commit hash
-      if revision != commit_hash
-        update_refs(storage_folder, revision, commit_hash)
-      end
+      update_refs(storage_folder, revision, commit_hash) if revision != commit_hash
 
       # Get list of files from repo_info
       all_files = if repo_info.respond_to?(:siblings) && repo_info.siblings
-        repo_info.siblings.map { |sibling| sibling[:rfilename] || sibling["rfilename"] }.compact
-      else
-        # Fallback to API call if siblings not available
-        api.list_repo_files(repo_id: repo_id, repo_type: repo_type, revision: commit_hash)
-      end
+                    repo_info.siblings.map { |sibling| sibling[:rfilename] || sibling["rfilename"] }.compact
+                  else
+                    # Fallback to API call if siblings not available
+                    api.list_repo_files(repo_id: repo_id, repo_type: repo_type, revision: commit_hash)
+                  end
 
       # Filter files based on allow_patterns and ignore_patterns
-      filtered_files = Utils::Paths.filter_repo_objects(all_files, allow_patterns: allow_patterns, ignore_patterns: ignore_patterns)
+      filtered_files = Utils::Paths.filter_repo_objects(all_files, allow_patterns: allow_patterns,
+                                                                   ignore_patterns: ignore_patterns)
 
       # Download files (with parallelization if max_workers > 1)
       if max_workers > 1
@@ -352,11 +344,11 @@ module DurableHuggingfaceHub
       # Create a unique folder name based on repo_id and type
       # Format: models--namespace--name or models--name
       repo_id_parts = repo_id.split("/")
-      if repo_id_parts.length == 2
-        folder_name = "#{repo_type}s--#{repo_id_parts[0]}--#{repo_id_parts[1]}"
-      else
-        folder_name = "#{repo_type}s--#{repo_id}"
-      end
+      folder_name = if repo_id_parts.length == 2
+                      "#{repo_type}s--#{repo_id_parts[0]}--#{repo_id_parts[1]}"
+                    else
+                      "#{repo_type}s--#{repo_id}"
+                    end
 
       cache_dir.join(folder_name)
     end
@@ -449,19 +441,19 @@ module DurableHuggingfaceHub
       blob_path = storage_folder.join("blobs", metadata[:etag])
       snapshot_path = storage_folder.join("snapshots", commit_hash, filename)
 
-       # Check if we already have this file (by ETag or snapshot file)
-       unless force_download
-         if blob_path.exist? && verify_blob(blob_path, metadata[:etag])
-           # File exists in blob storage, create symlink if needed
-           ensure_snapshot_link(blob_path, snapshot_path)
-           update_refs(storage_folder, revision, commit_hash)
-           return snapshot_path
-         elsif snapshot_path.exist?
-           # File exists in snapshot, assume it's valid
-           update_refs(storage_folder, revision, commit_hash)
-           return snapshot_path
-         end
-       end
+      # Check if we already have this file (by ETag or snapshot file)
+      unless force_download
+        if blob_path.exist? && verify_blob(blob_path, metadata[:etag])
+          # File exists in blob storage, create symlink if needed
+          ensure_snapshot_link(blob_path, snapshot_path)
+          update_refs(storage_folder, revision, commit_hash)
+          return snapshot_path
+        elsif snapshot_path.exist?
+          # File exists in snapshot, assume it's valid
+          update_refs(storage_folder, revision, commit_hash)
+          return snapshot_path
+        end
+      end
 
       # Use the redirect-resolved URL so the streaming GET never sees a 3xx.
       download_url = metadata[:resolved_url] || url_path
@@ -507,7 +499,7 @@ module DurableHuggingfaceHub
       return nil unless etag
 
       # Remove quotes and W/ prefix
-      etag = etag.gsub(/^W\//, "").gsub(/^"/, "").gsub(/"$/, "")
+      etag = etag.gsub(%r{^W/}, "").gsub(/^"/, "").gsub(/"$/, "")
       etag.empty? ? nil : etag
     end
 
@@ -544,10 +536,10 @@ module DurableHuggingfaceHub
 
       # Create progress tracker
       progress_tracker = if progress
-        Utils::Progress.new(total: metadata[:size], callback: progress)
-      else
-        Utils::NullProgress.new
-      end
+                           Utils::Progress.new(total: metadata[:size], callback: progress)
+                         else
+                           Utils::NullProgress.new
+                         end
 
       begin
         File.open(temp_path, "wb") do |f|
@@ -671,8 +663,6 @@ module DurableHuggingfaceHub
       max_workers:,
       progress:
     )
-      require "thread"
-
       # Create a queue of files to download
       queue = Queue.new
       files.each { |file| queue << file }
@@ -707,9 +697,9 @@ module DurableHuggingfaceHub
 
               mutex.synchronize do
                 completed += 1
-                progress&.call(completed, total, (completed.to_f / total * 100).round(2)) if progress
+                progress&.call(completed, total, (completed.to_f / total * 100).round(2))
               end
-            rescue => e
+            rescue StandardError => e
               warn "Failed to download #{file}: #{e.message}"
               # Continue with other files
             end
@@ -739,9 +729,7 @@ module DurableHuggingfaceHub
           target = entry.readlink
           target = entry.dirname.join(target) unless target.absolute?
 
-          if target.file?
-            FileUtils.cp(target, dest)
-          end
+          FileUtils.cp(target, dest) if target.file?
         elsif entry.directory?
           FileUtils.cp_r(entry, dest)
         elsif entry.file?
@@ -781,18 +769,16 @@ module DurableHuggingfaceHub
       revision: "main",
       cache_dir: nil
     )
-      begin
-        hf_hub_download(
-          repo_id: repo_id,
-          filename: filename,
-          repo_type: repo_type,
-          revision: revision,
-          cache_dir: cache_dir,
-          local_files_only: true
-        )
-      rescue LocalEntryNotFoundError
-        nil
-      end
+      hf_hub_download(
+        repo_id: repo_id,
+        filename: filename,
+        repo_type: repo_type,
+        revision: revision,
+        cache_dir: cache_dir,
+        local_files_only: true
+      )
+    rescue LocalEntryNotFoundError
+      nil
     end
 
     # Generate the HuggingFace Hub URL for a file in a repository.

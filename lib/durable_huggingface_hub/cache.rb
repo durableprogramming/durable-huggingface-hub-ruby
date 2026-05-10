@@ -73,11 +73,11 @@ module DurableHuggingfaceHub
       repo_id_part = match[2]
 
       # Convert back to repo_id format (handle both namespace/name and just name)
-      if repo_id_part.include?("--")
-        repo_id = repo_id_part.gsub("--", "/")
-      else
-        repo_id = repo_id_part
-      end
+      repo_id = if repo_id_part.include?("--")
+                  repo_id_part.gsub("--", "/")
+                else
+                  repo_id_part
+                end
 
       revisions = []
       total_size = 0
@@ -97,14 +97,10 @@ module DurableHuggingfaceHub
           total_size += revision_info.size
 
           # Track last accessed/modified times
-          if revision_info.last_modified
-            last_modified = [last_modified, revision_info.last_modified].compact.max
-          end
+          last_modified = [last_modified, revision_info.last_modified].compact.max if revision_info.last_modified
 
           revision_info.files.each do |file_info|
-            if file_info.last_accessed
-              last_accessed = [last_accessed, file_info.last_accessed].compact.max
-            end
+            last_accessed = [last_accessed, file_info.last_accessed].compact.max if file_info.last_accessed
           end
         end
       end
@@ -127,7 +123,7 @@ module DurableHuggingfaceHub
     # @param revision_dir [Pathname] Revision directory to scan
     # @param repo_type [String] Type of repository
     # @return [DurableHuggingfaceHub::Types::CachedRevisionInfo, nil] Revision info or nil if invalid
-    def self.scan_revision(repo_dir, revision_dir, repo_type)
+    def self.scan_revision(repo_dir, revision_dir, _repo_type)
       commit_hash = revision_dir.basename.to_s
       files = []
       total_size = 0
@@ -145,10 +141,8 @@ module DurableHuggingfaceHub
           files << file_info
           total_size += file_info.size
 
-          if file_info.last_modified
-            last_modified = [last_modified, file_info.last_modified].compact.max
-          end
-        rescue => e
+          last_modified = [last_modified, file_info.last_modified].compact.max if file_info.last_modified
+        rescue StandardError
           # Skip files that can't be analyzed
           next
         end
@@ -232,7 +226,7 @@ module DurableHuggingfaceHub
             rel_path = ref_file.relative_path_from(refs_dir).to_s
             refs << rel_path
           end
-        rescue
+        rescue StandardError
           # Skip unreadable ref files
           next
         end
@@ -264,11 +258,11 @@ module DurableHuggingfaceHub
 
       # Build the expected repository directory name
       repo_id_parts = repo_id.split("/")
-      if repo_id_parts.length == 2
-        folder_name = "#{repo_type}s--#{repo_id_parts[0]}--#{repo_id_parts[1]}"
-      else
-        folder_name = "#{repo_type}s--#{repo_id}"
-      end
+      folder_name = if repo_id_parts.length == 2
+                      "#{repo_type}s--#{repo_id_parts[0]}--#{repo_id_parts[1]}"
+                    else
+                      "#{repo_type}s--#{repo_id}"
+                    end
 
       repo_path = cache_dir.join(folder_name)
       repo_path.exist? ? repo_path : nil
@@ -326,7 +320,7 @@ module DurableHuggingfaceHub
       #
       # @return [String] Size formatted as human-readable string
       def size_to_delete_str
-        units = ["B", "KB", "MB", "GB", "TB"]
+        units = %w[B KB MB GB TB]
         size = size_to_delete.to_f
         unit_index = 0
 
@@ -416,14 +410,8 @@ module DurableHuggingfaceHub
       def delete_file_safely(file_path)
         return unless file_path.exist?
 
-        # If it's a symlink, just remove the symlink
-        if file_path.symlink?
-          file_path.unlink
-        else
-          # For regular files, remove them
-          file_path.unlink
-        end
-      rescue => e
+        file_path.unlink
+      rescue StandardError => e
         # Log error but continue with other deletions
         warn "Failed to delete #{file_path}: #{e.message}"
       end
@@ -444,7 +432,7 @@ module DurableHuggingfaceHub
 
         # Clean up refs that pointed to this revision
         cleanup_refs_for_revision(repo_dir, revision_info.commit_hash)
-      rescue => e
+      rescue StandardError => e
         warn "Failed to delete revision #{revision_info.commit_hash}: #{e.message}"
       end
 
@@ -453,14 +441,14 @@ module DurableHuggingfaceHub
       # @param repo_info [DurableHuggingfaceHub::Types::CachedRepoInfo] Repository to delete
       def delete_repository_safely(repo_info)
         # Find the repository directory
-        repo_dir_name = "#{repo_info.repo_type}s--#{repo_info.repo_id.gsub('/', '--')}"
+        repo_dir_name = "#{repo_info.repo_type}s--#{repo_info.repo_id.gsub("/", "--")}"
         repo_dir = @cache_dir.join(repo_dir_name)
 
         return unless repo_dir.exist?
 
         # Remove the entire repository directory
         FileUtils.rm_rf(repo_dir)
-      rescue => e
+      rescue StandardError => e
         warn "Failed to delete repository #{repo_info.repo_id}: #{e.message}"
       end
 
@@ -498,7 +486,7 @@ module DurableHuggingfaceHub
           begin
             ref_commit = ref_file.read.strip
             ref_file.unlink if ref_commit == commit_hash
-          rescue
+          rescue StandardError
             # Skip unreadable ref files
             next
           end

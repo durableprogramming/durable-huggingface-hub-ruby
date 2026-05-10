@@ -70,24 +70,22 @@ module DurableHuggingfaceHub
     #   card = ModelCard.from_hub("bert-base-uncased")
     def self.from_hub(repo_id, repo_type: nil, revision: nil, token: nil, timeout: nil)
       Utils::Validators.validate_repo_id(repo_id)
-      repo_type ||= self.default_repo_type
+      repo_type ||= default_repo_type
       repo_type = Utils::Validators.validate_repo_type(repo_type)
 
       api = HfApi.new(token: token)
 
       # Build URL for README.md
-      url_path = "/#{repo_type}s/#{repo_id}/resolve/#{revision || 'main'}/README.md"
+      url_path = "/#{repo_type}s/#{repo_id}/resolve/#{revision || "main"}/README.md"
 
       begin
         response = api.http_client.get(url_path, timeout: timeout)
         content = response.body
         parse(content)
       rescue HfHubHTTPError => e
-        if e.status_code == 404
-          raise EntryNotFoundError, "README.md not found in #{repo_id}"
-        else
-          raise
-        end
+        raise EntryNotFoundError, "README.md not found in #{repo_id}" if e.status_code == 404
+
+        raise
       end
     end
 
@@ -108,7 +106,7 @@ module DurableHuggingfaceHub
         if end_index
           # Extract YAML frontmatter
           yaml_content = content[4...end_index]
-          markdown_content = content[(end_index + 5)..-1] || ""
+          markdown_content = content[(end_index + 5)..] || ""
 
           begin
             metadata = YAML.safe_load(yaml_content, permitted_classes: [Date, Time]) || {}
@@ -260,9 +258,7 @@ module DurableHuggingfaceHub
       errors << "language is required" unless @data["language"]
 
       # Validate license format (should be SPDX identifier)
-      if @data["license"] && !@data["license"].is_a?(String)
-        errors << "license must be a string"
-      end
+      errors << "license must be a string" if @data["license"] && !@data["license"].is_a?(String)
 
       # Validate language format
       if @data["language"]
@@ -279,9 +275,7 @@ module DurableHuggingfaceHub
       end
 
       # Validate tags format
-      if @data["tags"] && !@data["tags"].is_a?(Array)
-        errors << "tags must be an array"
-      end
+      errors << "tags must be an array" if @data["tags"] && !@data["tags"].is_a?(Array)
 
       errors
     end
@@ -350,9 +344,7 @@ module DurableHuggingfaceHub
       errors << "license is required" unless @data["license"]
 
       # Validate license format
-      if @data["license"] && !@data["license"].is_a?(String)
-        errors << "license must be a string"
-      end
+      errors << "license must be a string" if @data["license"] && !@data["license"].is_a?(String)
 
       # Validate language format
       if @data["language"]
@@ -369,9 +361,7 @@ module DurableHuggingfaceHub
       end
 
       # Validate task_categories format
-      if @data["task_categories"] && !@data["task_categories"].is_a?(Array)
-        errors << "task_categories must be an array"
-      end
+      errors << "task_categories must be an array" if @data["task_categories"] && !@data["task_categories"].is_a?(Array)
 
       errors
     end
@@ -410,19 +400,15 @@ module DurableHuggingfaceHub
       errors << "app_file is required" unless @data["app_file"]
 
       # Validate SDK
-      if @data["sdk"] && !["gradio", "streamlit", "docker", "static"].include?(@data["sdk"])
+      if @data["sdk"] && !%w[gradio streamlit docker static].include?(@data["sdk"])
         errors << "sdk must be one of: gradio, streamlit, docker, static"
       end
 
       # Validate app_file
-      if @data["app_file"] && !@data["app_file"].is_a?(String)
-        errors << "app_file must be a string"
-      end
+      errors << "app_file must be a string" if @data["app_file"] && !@data["app_file"].is_a?(String)
 
       # Validate sdk_version format
-      if @data["sdk_version"] && !@data["sdk_version"].is_a?(String)
-        errors << "sdk_version must be a string"
-      end
+      errors << "sdk_version must be a string" if @data["sdk_version"] && !@data["sdk_version"].is_a?(String)
 
       errors
     end

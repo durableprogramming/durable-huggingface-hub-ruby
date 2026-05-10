@@ -58,7 +58,7 @@ module TestHelpers
       "id" => "bert-base-uncased",
       "sha" => "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2",
       "lastModified" => "2023-01-01T00:00:00.000Z",
-      "tags" => ["transformers", "pytorch", "bert"],
+      "tags" => %w[transformers pytorch bert],
       "pipeline_tag" => "fill-mask",
       "siblings" => [
         { "rfilename" => "config.json" },
@@ -78,7 +78,7 @@ module TestHelpers
       "id" => "squad",
       "sha" => "b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3",
       "lastModified" => "2023-06-01T00:00:00.000Z",
-      "tags" => ["question-answering", "english"],
+      "tags" => %w[question-answering english],
       "siblings" => [
         { "rfilename" => "README.md" },
         { "rfilename" => "dataset_infos.json" }
@@ -96,7 +96,7 @@ module TestHelpers
       "id" => "stabilityai/stable-diffusion",
       "sha" => "c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4",
       "lastModified" => "2023-07-01T00:00:00.000Z",
-      "tags" => ["stable-diffusion", "image-generation"],
+      "tags" => %w[stable-diffusion image-generation],
       "private" => false,
       "likes" => 10_000,
       "author" => "stabilityai",

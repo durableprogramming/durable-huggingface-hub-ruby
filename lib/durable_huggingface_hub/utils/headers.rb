@@ -30,9 +30,7 @@ module DurableHuggingfaceHub
       #   )
       def self.build_hf_headers(token: nil, library_name: nil, library_version: nil, user_agent: nil, headers: nil)
         # Validate parameters
-        if token && !token.is_a?(String)
-          raise ValidationError.new("token", "Token must be a string")
-        end
+        raise ValidationError.new("token", "Token must be a string") if token && !token.is_a?(String)
 
         if library_name && !library_name.is_a?(String)
           raise ValidationError.new("library_name", "Library name must be a string")
@@ -46,9 +44,7 @@ module DurableHuggingfaceHub
           raise ValidationError.new("user_agent", "User agent must be a string")
         end
 
-        if headers && !headers.is_a?(Hash)
-          raise ValidationError.new("headers", "Custom headers must be a hash")
-        end
+        raise ValidationError.new("headers", "Custom headers must be a hash") if headers && !headers.is_a?(Hash)
 
         result = {}
 
@@ -60,14 +56,10 @@ module DurableHuggingfaceHub
         )
 
         # Authorization header
-        if token
-          result["Authorization"] = "Bearer #{token}"
-        end
+        result["Authorization"] = "Bearer #{token}" if token
 
         # Merge custom headers
-        if headers
-          result.merge!(headers)
-        end
+        result.merge!(headers) if headers
 
         result
       end
@@ -132,9 +124,7 @@ module DurableHuggingfaceHub
       # @return [String, nil] Request ID if present
       # @raise [ValidationError] If headers is not a hash
       def self.extract_request_id(headers)
-        if headers && !headers.is_a?(Hash)
-          raise ValidationError.new("headers", "Headers must be a hash")
-        end
+        raise ValidationError.new("headers", "Headers must be a hash") if headers && !headers.is_a?(Hash)
 
         return nil unless headers
 
@@ -151,9 +141,7 @@ module DurableHuggingfaceHub
       # @return [String, nil] Commit SHA if present
       # @raise [ValidationError] If headers is not a hash
       def self.extract_commit_sha(headers)
-        if headers && !headers.is_a?(Hash)
-          raise ValidationError.new("headers", "Headers must be a hash")
-        end
+        raise ValidationError.new("headers", "Headers must be a hash") if headers && !headers.is_a?(Hash)
 
         return nil unless headers
 
@@ -167,9 +155,7 @@ module DurableHuggingfaceHub
       # @return [String, nil] ETag value (with quotes removed)
       # @raise [ValidationError] If headers is not a hash
       def self.extract_etag(headers)
-        if headers && !headers.is_a?(Hash)
-          raise ValidationError.new("headers", "Headers must be a hash")
-        end
+        raise ValidationError.new("headers", "Headers must be a hash") if headers && !headers.is_a?(Hash)
 
         return nil unless headers
 
@@ -186,9 +172,7 @@ module DurableHuggingfaceHub
       # @return [Integer, nil] File size in bytes
       # @raise [ValidationError] If headers is not a hash
       def self.extract_linked_size(headers)
-        if headers && !headers.is_a?(Hash)
-          raise ValidationError.new("headers", "Headers must be a hash")
-        end
+        raise ValidationError.new("headers", "Headers must be a hash") if headers && !headers.is_a?(Hash)
 
         return nil unless headers
 
@@ -204,9 +188,7 @@ module DurableHuggingfaceHub
       # @return [Boolean] True if file is in LFS
       # @raise [ValidationError] If headers is not a hash
       def self.lfs_file?(headers)
-        if headers && !headers.is_a?(Hash)
-          raise ValidationError.new("headers", "Headers must be a hash")
-        end
+        raise ValidationError.new("headers", "Headers must be a hash") if headers && !headers.is_a?(Hash)
 
         return false unless headers
 

@@ -7,8 +7,8 @@ module DurableHuggingfaceHub
   module Utils
     class AuthTest < Minitest::Test
       def setup
-        @original_hf_token = ENV["HF_TOKEN"]
-        @original_hf_hub_token = ENV["HUGGING_FACE_HUB_TOKEN"]
+        @original_hf_token = ENV.fetch("HF_TOKEN", nil)
+        @original_hf_hub_token = ENV.fetch("HUGGING_FACE_HUB_TOKEN", nil)
         ENV.delete("HF_TOKEN")
         ENV.delete("HUGGING_FACE_HUB_TOKEN")
 
@@ -32,17 +32,20 @@ module DurableHuggingfaceHub
 
       def test_returns_hf_token_env_var
         ENV["HF_TOKEN"] = "hf_env_token"
+
         assert_equal "hf_env_token", Auth.get_token
       end
 
       def test_returns_legacy_env_var_when_hf_token_absent
         ENV["HUGGING_FACE_HUB_TOKEN"] = "hf_legacy_token"
+
         assert_equal "hf_legacy_token", Auth.get_token
       end
 
       def test_prefers_hf_token_over_legacy
         ENV["HF_TOKEN"] = "hf_primary"
         ENV["HUGGING_FACE_HUB_TOKEN"] = "hf_legacy"
+
         assert_equal "hf_primary", Auth.get_token
       end
 
@@ -52,6 +55,7 @@ module DurableHuggingfaceHub
 
       def test_ignores_empty_explicit_token
         ENV["HF_TOKEN"] = "hf_env_token"
+
         assert_equal "hf_env_token", Auth.get_token(token: "")
       end
 
@@ -59,6 +63,7 @@ module DurableHuggingfaceHub
         token_path = DurableHuggingfaceHub::Configuration.instance.token_path
         FileUtils.mkdir_p(token_path.dirname)
         File.write(token_path, "hf_file_token")
+
         assert_equal "hf_file_token", Auth.get_token
       end
 
@@ -66,6 +71,7 @@ module DurableHuggingfaceHub
         token_path = DurableHuggingfaceHub::Configuration.instance.token_path
         FileUtils.mkdir_p(token_path.dirname)
         File.write(token_path, "  hf_file_token\n  ")
+
         assert_equal "hf_file_token", Auth.get_token
       end
 
@@ -73,6 +79,7 @@ module DurableHuggingfaceHub
 
       def test_write_and_read_token
         Auth.write_token_to_file("hf_written_token")
+
         assert_equal "hf_written_token", Auth.read_token_from_file
       end
 
@@ -80,6 +87,7 @@ module DurableHuggingfaceHub
         Auth.write_token_to_file("hf_token_perms")
         token_path = DurableHuggingfaceHub::Configuration.instance.token_path
         mode = File.stat(token_path).mode & 0o777
+
         assert_equal 0o600, mode
       end
 
@@ -91,6 +99,7 @@ module DurableHuggingfaceHub
 
       def test_delete_token_file_returns_true_when_exists
         Auth.write_token_to_file("hf_delete_me")
+
         assert Auth.delete_token_file
       end
 
@@ -101,6 +110,7 @@ module DurableHuggingfaceHub
       def test_delete_removes_file
         Auth.write_token_to_file("hf_to_delete")
         Auth.delete_token_file
+
         assert_nil Auth.read_token_from_file
       end
 
@@ -134,6 +144,7 @@ module DurableHuggingfaceHub
 
       def test_get_token_bang_returns_token_when_available
         ENV["HF_TOKEN"] = "hf_available"
+
         assert_equal "hf_available", Auth.get_token!
       end
 
@@ -145,9 +156,10 @@ module DurableHuggingfaceHub
 
       def test_mask_token_hides_middle
         masked = Auth.mask_token("hf_abc123def456ghi789")
-        assert masked.include?("hf_abc1")
-        assert masked.include?("...")
-        refute masked.include?("def456")
+
+        assert_includes masked, "hf_abc1"
+        assert_includes masked, "..."
+        refute_includes masked, "def456"
       end
 
       def test_mask_token_handles_empty

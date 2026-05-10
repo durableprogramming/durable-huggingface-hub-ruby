@@ -24,12 +24,14 @@ Gem::Specification.new do |spec|
   spec.metadata["changelog_uri"] = "https://github.com/durableprogramming/huggingface-hub-ruby/blob/master/CHANGELOG.md"
   spec.metadata["documentation_uri"] = "https://rubydoc.info/gems/huggingface_hub"
   spec.metadata["bug_tracker_uri"] = "https://github.com/durableprogramming/huggingface-hub-ruby/issues"
+  spec.metadata["rubygems_mfa_required"] = "true"
 
   # Specify which files should be added to the gem when it is released.
   spec.files = Dir.chdir(__dir__) do
     `git ls-files -z`.split("\x0").reject do |f|
       (File.expand_path(f) == __FILE__) ||
-        f.start_with?(*%w[bin/ test/ spec/ features/ .git .github appveyor Gemfile reference/ philosophy/ durableprogramming-coding-standards/])
+        f.start_with?(*%w[bin/ test/ spec/ features/ .git .github appveyor Gemfile reference/ philosophy/
+                          durableprogramming-coding-standards/])
     end
   end
   spec.bindir = "exe"
@@ -37,27 +39,27 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   # Runtime dependencies
+  spec.add_dependency "dry-struct", "~> 1.6"
+  spec.add_dependency "dry-types", "~> 1.7"
   spec.add_dependency "faraday", "~> 2.0"
   spec.add_dependency "faraday-follow_redirects", "~> 0.3"
   spec.add_dependency "faraday-multipart", "~> 1.0"
   spec.add_dependency "faraday-retry", "~> 2.0"
-  spec.add_dependency "dry-struct", "~> 1.6"
-  spec.add_dependency "dry-types", "~> 1.7"
   spec.add_dependency "ruby-progressbar", "~> 1.13"
   spec.add_dependency "zeitwerk", "~> 2.6"
 
   # Development dependencies
   spec.add_development_dependency "bundler", "~> 2.0"
-  spec.add_development_dependency "rake", "~> 13.0"
   spec.add_development_dependency "minitest", "~> 5.0"
   spec.add_development_dependency "minitest-reporters", "~> 1.6"
-  spec.add_development_dependency "webmock", "~> 3.18"
-  spec.add_development_dependency "vcr", "~> 6.1"
+  spec.add_development_dependency "rake", "~> 13.0"
   spec.add_development_dependency "rubocop", "~> 1.50"
   spec.add_development_dependency "rubocop-minitest", "~> 0.31"
   spec.add_development_dependency "rubocop-rake", "~> 0.6"
-  spec.add_development_dependency "yard", "~> 0.9"
   spec.add_development_dependency "simplecov", "~> 0.22"
+  spec.add_development_dependency "vcr", "~> 6.1"
+  spec.add_development_dependency "webmock", "~> 3.18"
+  spec.add_development_dependency "yard", "~> 0.9"
 
   # For more information and examples about making a new gem, check out our
   # guide at: https://bundler.io/guides/creating_gem.html

@@ -87,6 +87,7 @@ module DurableHuggingfaceHub
 
       def test_valid_revision_commit_sha
         sha = "a" * 40
+
         assert_equal sha, Validators.validate_revision(sha)
       end
 
@@ -202,7 +203,7 @@ module DurableHuggingfaceHub
       end
 
       def test_require_non_nil_passes_false
-        assert_equal false, Validators.require_non_nil(false, "flag")
+        refute Validators.require_non_nil(false, "flag")
       end
 
       # --- require_non_empty ---

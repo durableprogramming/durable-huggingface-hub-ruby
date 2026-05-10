@@ -102,26 +102,26 @@ module DurableHuggingfaceHub
 
     # Delegates to FileDownload.hf_hub_download
     # @see FileDownload.hf_hub_download
-    def hf_hub_download(**kwargs)
-      FileDownload.hf_hub_download(**kwargs)
+    def hf_hub_download(**)
+      FileDownload.hf_hub_download(**)
     end
 
     # Delegates to FileDownload.snapshot_download
     # @see FileDownload.snapshot_download
-    def snapshot_download(**kwargs)
-      FileDownload.snapshot_download(**kwargs)
+    def snapshot_download(**)
+      FileDownload.snapshot_download(**)
     end
 
     # Delegates to Cache.scan_cache_dir
     # @see Cache.scan_cache_dir
-    def scan_cache_dir(**kwargs)
-      Cache.scan_cache_dir(**kwargs)
+    def scan_cache_dir(**)
+      Cache.scan_cache_dir(**)
     end
 
     # Delegates to Cache.cached_assets_path
     # @see Cache.cached_assets_path
-    def cached_assets_path(**kwargs)
-      Cache.cached_assets_path(**kwargs)
+    def cached_assets_path(**)
+      Cache.cached_assets_path(**)
     end
 
     # Delegates to HfApi.repo_info
@@ -178,25 +178,16 @@ module DurableHuggingfaceHub
       HfApi.new.repo_exists(repo_id, repo_type: repo_type, timeout: timeout)
     end
 
-    # Delegates to HfApi.whoami
-    # @see HfApi.whoami
-    # @raise [LocalTokenNotFoundError] If no token is provided or found
-    def whoami(token: nil)
-      # Ensure a token is available before making API call
-      token = Utils::Auth.get_token!(token: token)
-      HfApi.new(token: token).whoami
-    end
-
     # Delegates to FileDownload.try_to_load_from_cache
     # @see FileDownload.try_to_load_from_cache
-    def try_to_load_from_cache(**kwargs)
-      FileDownload.try_to_load_from_cache(**kwargs)
+    def try_to_load_from_cache(**)
+      FileDownload.try_to_load_from_cache(**)
     end
 
     # Delegates to FileDownload.hf_hub_url
     # @see FileDownload.hf_hub_url
-    def hf_hub_url(**kwargs)
-      FileDownload.hf_hub_url(**kwargs)
+    def hf_hub_url(**)
+      FileDownload.hf_hub_url(**)
     end
   end
 end

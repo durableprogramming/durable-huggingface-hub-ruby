@@ -86,14 +86,10 @@ module DurableHuggingfaceHub
       #   Paths.should_include?("temp.log", ignore_patterns: ["*.log"])  # => false
       def self.should_include?(path, allow_patterns: nil, ignore_patterns: nil)
         # If ignore patterns specified and path matches, exclude it
-        if ignore_patterns && matches_any_pattern?(path, ignore_patterns)
-          return false
-        end
+        return false if ignore_patterns && matches_any_pattern?(path, ignore_patterns)
 
         # If allow patterns specified, path must match at least one
-        if allow_patterns
-          return matches_any_pattern?(path, allow_patterns)
-        end
+        return matches_any_pattern?(path, allow_patterns) if allow_patterns
 
         # If no allow patterns, include by default (unless already ignored above)
         true
@@ -173,12 +169,12 @@ module DurableHuggingfaceHub
       def self.safe_join(base, *parts)
         # Validate that no part is an absolute path
         parts.each do |part|
-          if part.to_s.start_with?("/")
-            raise ValidationError.new(
-              "path",
-              "Path component cannot be absolute: #{part}"
-            )
-          end
+          next unless part.to_s.start_with?("/")
+
+          raise ValidationError.new(
+            "path",
+            "Path component cannot be absolute: #{part}"
+          )
         end
 
         base_path = Pathname.new(base).expand_path
@@ -195,8 +191,6 @@ module DurableHuggingfaceHub
 
         final_path
       end
-
-      private
 
       # Normalizes pattern input to an array.
       #
@@ -221,8 +215,6 @@ module DurableHuggingfaceHub
           obj
         when Hash
           key ? (obj[key] || obj[key.to_s] || obj[key.to_sym]) : nil
-        else
-          nil
         end
       end
     end

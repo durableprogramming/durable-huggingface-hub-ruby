@@ -54,7 +54,7 @@ module DurableHuggingfaceHub
       #
       # @return [String] Size formatted as human-readable string (e.g., "1.2 MB")
       def size_str
-        units = ["B", "KB", "MB", "GB", "TB"]
+        units = %w[B KB MB GB TB]
         size = self.size.to_f
         unit_index = 0
 
@@ -111,7 +111,7 @@ module DurableHuggingfaceHub
       #
       # @return [String] Size formatted as human-readable string
       def size_str
-        units = ["B", "KB", "MB", "GB", "TB"]
+        units = %w[B KB MB GB TB]
         size = self.size.to_f
         unit_index = 0
 
@@ -181,7 +181,7 @@ module DurableHuggingfaceHub
       #
       # @return [String] Size formatted as human-readable string
       def size_str
-        units = ["B", "KB", "MB", "GB", "TB"]
+        units = %w[B KB MB GB TB]
         size = self.size.to_f
         unit_index = 0
 
@@ -240,7 +240,7 @@ module DurableHuggingfaceHub
       #
       # @return [String] Size formatted as human-readable string
       def size_str
-        units = ["B", "KB", "MB", "GB", "TB"]
+        units = %w[B KB MB GB TB]
         size = self.size.to_f
         unit_index = 0
 

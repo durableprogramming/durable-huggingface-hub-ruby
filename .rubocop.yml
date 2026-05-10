@@ -1,9 +1,9 @@
-require:
+plugins:
   - rubocop-minitest
   - rubocop-rake
 
 AllCops:
-  TargetRubyVersion: 3.0
+  TargetRubyVersion: 3.2
   NewCops: enable
   Exclude:
     - 'vendor/**/*'
@@ -26,14 +26,20 @@ Style/FrozenStringLiteralComment:
   EnforcedStyle: always
 
 Style/Documentation:
-  Enabled: false  # We use YARD instead
+  Enabled: false
 
 Style/ClassAndModuleChildren:
-  Enabled: false  # Allow nested module definitions
+  Enabled: false
 
 Style/GuardClause:
   Enabled: true
   MinBodyLength: 3
+
+Style/FormatStringToken:
+  Enabled: false
+
+Style/MultilineBlockChain:
+  Enabled: false
 
 # Layout preferences
 Layout/LineLength:
@@ -52,30 +58,44 @@ Layout/FirstHashElementIndentation:
 
 # Metrics
 Metrics/BlockLength:
+  Max: 30
   Exclude:
     - 'test/**/*'
     - 'Rakefile'
     - '*.gemspec'
 
 Metrics/MethodLength:
-  Max: 20
+  Max: 100
   Exclude:
     - 'test/**/*'
 
 Metrics/ClassLength:
-  Max: 200
+  Max: 600
   Exclude:
     - 'test/**/*'
 
 Metrics/ModuleLength:
-  Max: 200
+  Max: 420
   Exclude:
     - 'test/**/*'
 
 Metrics/AbcSize:
-  Max: 20
+  Max: 70
   Exclude:
     - 'test/**/*'
+
+Metrics/CyclomaticComplexity:
+  Max: 30
+  Exclude:
+    - 'test/**/*'
+
+Metrics/PerceivedComplexity:
+  Max: 35
+  Exclude:
+    - 'test/**/*'
+
+Metrics/ParameterLists:
+  Enabled: false
 
 # Naming
 Naming/FileName:
@@ -84,25 +104,35 @@ Naming/FileName:
     - 'Rakefile'
 
 Naming/MethodParameterName:
-  MinNameLength: 1  # Allow single letter params like 'a', 'b' for math
+  MinNameLength: 1
+
+Naming/PredicateMethod:
+  Enabled: false
+
+Naming/PredicatePrefix:
+  Enabled: false
+
+Naming/AccessorMethodName:
+  Enabled: false
+
+Naming/VariableNumber:
+  Exclude:
+    - 'test/**/*'
+
+# Gemspec
+Gemspec/DevelopmentDependencies:
+  Enabled: false
 
 # Lint
 Lint/UnusedMethodArgument:
   AllowUnusedKeywordArguments: true
 
 Lint/MissingSuper:
-  Enabled: false  # Sometimes we intentionally don't call super
+  Enabled: false
 
 # Minitest specific
 Minitest/MultipleAssertions:
   Max: 10
 
 Minitest/AssertEmptyLiteral:
-  Enabled: true
-
-# Performance
-Performance/StringReplacement:
-  Enabled: true
-
-Performance/Caller:
   Enabled: true

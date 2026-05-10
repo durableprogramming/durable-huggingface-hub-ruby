@@ -34,11 +34,11 @@ module DurableHuggingfaceHub
         return token if token && !token.empty?
 
         # Priority 2: HF_TOKEN environment variable
-        env_token = ENV["HF_TOKEN"]
+        env_token = ENV.fetch("HF_TOKEN", nil)
         return env_token if env_token && !env_token.empty?
 
         # Priority 3: HUGGING_FACE_HUB_TOKEN environment variable
-        legacy_token = ENV["HUGGING_FACE_HUB_TOKEN"]
+        legacy_token = ENV.fetch("HUGGING_FACE_HUB_TOKEN", nil)
         return legacy_token if legacy_token && !legacy_token.empty?
 
         # Priority 4: Token file
@@ -86,7 +86,7 @@ module DurableHuggingfaceHub
         File.rename(temp_path, token_path)
 
         true
-      rescue => e
+      rescue StandardError => e
         # Clean up temp file if it exists
         temp_path&.delete if temp_path&.exist?
         raise IOError, "Failed to write token: #{e.message}"
@@ -142,7 +142,7 @@ module DurableHuggingfaceHub
         result = get_token(token: token)
         return result if result
 
-        raise LocalTokenNotFoundError.new
+        raise LocalTokenNotFoundError
       end
 
       # Masks a token for safe display.
@@ -162,12 +162,11 @@ module DurableHuggingfaceHub
         if token.length <= 15
           prefix = token[0, 4]
           suffix = token[-1]
-          "#{prefix}...#{suffix}"
         else
           prefix = token[0, 7]
           suffix = token[-4..]
-          "#{prefix}...#{suffix}"
         end
+        "#{prefix}...#{suffix}"
       end
     end
   end

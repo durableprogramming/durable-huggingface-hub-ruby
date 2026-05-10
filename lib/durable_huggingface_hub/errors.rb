@@ -182,9 +182,6 @@ module DurableHuggingfaceHub
     # Creates a new local entry not found error.
     #
     # @param message [String] Error message
-    def initialize(message)
-      super(message)
-    end
   end
 
   # Error raised when attempting to access a gated repository without proper access.
@@ -366,7 +363,7 @@ module DurableHuggingfaceHub
     # @param status_code [Integer, nil] HTTP status code
     # @param response_body [String, nil] Response body
     def initialize(message, status_code: nil, response_body: nil)
-      super(message, status_code: status_code, response_body: response_body)
+      super
     end
   end
 

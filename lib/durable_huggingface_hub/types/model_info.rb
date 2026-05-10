@@ -53,9 +53,9 @@ module DurableHuggingfaceHub
       #   @return [Boolean, nil] Whether the repository is private
       attribute :private, Types::OptionalBool.default(nil)
 
-       # @!attribute [r] gated
-       #   @return [Boolean, String, nil] Gated access status (false, "auto", "manual")
-       attribute :gated, Types::OptionalGated.default(nil)
+      # @!attribute [r] gated
+      #   @return [Boolean, String, nil] Gated access status (false, "auto", "manual")
+      attribute :gated, Types::OptionalGated.default(nil)
 
       # @!attribute [r] disabled
       #   @return [Boolean, nil] Whether the repository is disabled

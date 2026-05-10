@@ -62,7 +62,9 @@ module DurableHuggingfaceHub
     def parse_login_options(opts)
       opts.banner = "Usage: dhf login [options]"
       opts.on("-t", "--token TOKEN", "HuggingFace API token") { |v| @options[:token] = v }
-      opts.on("--add-to-git-credential", "Add token to git credential store") { @options[:add_to_git_credential] = true }
+      opts.on("--add-to-git-credential", "Add token to git credential store") do
+        @options[:add_to_git_credential] = true
+      end
     end
 
     def parse_logout_options(opts)
